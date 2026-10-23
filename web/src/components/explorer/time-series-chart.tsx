@@ -1,0 +1,123 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import * as echarts from "echarts/core";
+import { LineChart } from "echarts/charts";
+import {
+  GridComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  TooltipComponent,
+} from "echarts/components";
+import { CanvasRenderer } from "echarts/renderers";
+import type { EChartsType } from "echarts/core";
+import { buildChartOption } from "@/lib/chart-option";
+import type { ChartPoint } from "@/lib/series";
+import type {
+  Indicator,
+  Observation,
+  Source,
+  Term,
+} from "@/lib/types";
+import type { ScaleMode, ViewMode } from "@/lib/url-state";
+
+echarts.use([
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  CanvasRenderer,
+]);
+
+export interface TimeSeriesChartProps {
+  indicator: Indicator;
+  source: Source;
+  observations: readonly Observation[];
+  points: readonly ChartPoint[];
+  terms: readonly Term[];
+  from: string;
+  to: string;
+  view: ViewMode;
+  scale: ScaleMode;
+  summary: string;
+}
+
+export function TimeSeriesChart({
+  indicator,
+  source,
+  observations,
+  points,
+  terms,
+  from,
+  to,
+  view,
+  scale,
+  summary,
+}: TimeSeriesChartProps) {
+  const elementRef = useRef<HTMLDivElement>(null);
+  const instanceRef = useRef<EChartsType | null>(null);
+  const [fontFamily, setFontFamily] = useState(
+    "Inter, ui-sans-serif, system-ui, sans-serif",
+  );
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const computedFamily = window.getComputedStyle(element).fontFamily;
+    if (computedFamily) setFontFamily(computedFamily);
+
+    const instance = echarts.init(element, undefined, { renderer: "canvas" });
+    instanceRef.current = instance;
+
+    const observer = new ResizeObserver(() => {
+      instance.resize();
+    });
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      instance.dispose();
+      instanceRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const instance = instanceRef.current;
+    if (!instance) return;
+
+    instance.setOption(
+      buildChartOption({
+        indicator,
+        source,
+        observations,
+        points,
+        terms,
+        from,
+        to,
+        view,
+        scale,
+        fontFamily,
+      }),
+      { notMerge: true },
+    );
+  }, [
+    indicator,
+    source,
+    observations,
+    points,
+    terms,
+    from,
+    to,
+    view,
+    scale,
+    fontFamily,
+  ]);
+
+  return (
+    <figure className="m-0" role="img" aria-label={summary}>
+      <div ref={elementRef} className="chart-frame" />
+    </figure>
+  );
+}

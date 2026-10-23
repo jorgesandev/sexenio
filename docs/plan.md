@@ -22,17 +22,17 @@
 - [x] AGENTS.md, spec, plan, modelo de datos, diseño.
 - [x] Metadatos y fixtures sintéticos.
 
-### M1 — Shell y sistema de diseño
+### M1 — Shell y sistema de diseño (hecho)
 
 Depende de: nada. No requiere tokens.
 
-- [ ] Scaffold Next.js + TypeScript + Tailwind v4 en `web/`.
-- [ ] Tokens de color y tipografía de `docs/design.md`.
-- [ ] Header, tabs, sidebar, drawer y layout responsive.
-- [ ] Estado de URL con defaults y validación.
-- [ ] Componente `TimeSeriesChart` con ECharts y datos fixture.
-- [ ] Tabla accesible y franja de cobertura.
-- [ ] Banner de datos sintéticos.
+- [x] Scaffold Next.js + TypeScript + Tailwind v4 en `web/`.
+- [x] Tokens de color y tipografía de `docs/design.md`.
+- [x] Header, tabs, sidebar, drawer y layout responsive.
+- [x] Estado de URL con defaults y validación.
+- [x] Componente `TimeSeriesChart` con ECharts y datos fixture.
+- [x] Tabla accesible y franja de cobertura.
+- [x] Banner de datos sintéticos.
 
 **Terminado cuando:** `/explorar` muestra los 4 indicadores fixture, cambia de rango y vista, y la URL reproduce el estado.
 

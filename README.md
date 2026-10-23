@@ -6,7 +6,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-Documentación y estructura listas para iniciar el hito **M1** (shell y sistema de diseño). La aplicación en `web/` todavía no existe. Los datos de desarrollo son sintéticos y están marcados como tales.
+**M1 completado.** El explorador en `web/` ya incluye shell responsive, sistema de diseño, estado en URL y los cuatro indicadores fixture. El siguiente hito es **M2**: sustituir los fixtures por datos reales con fuente, `vintage` y quiebres visibles.
 
 ## Documentación
 
@@ -47,7 +47,7 @@ Documentación y estructura listas para iniciar el hito **M1** (shell y sistema 
 │   ├── raw/               # descargas originales (no versionadas)
 │   └── processed/         # datasets normalizados (no versionados)
 ├── etl/                   # ingestión y generación de fixtures
-└── web/                   # aplicación Next.js (pendiente)
+└── web/                   # aplicación Next.js (M1)
 ```
 
 ## Inicio rápido
@@ -58,11 +58,13 @@ Requisitos: bun y Python 3.12+.
 # Fixtures de desarrollo (sin tokens)
 python3 etl/make_fixtures.py
 
-# Frontend (cuando exista web/)
+# Frontend
 cd web
 bun install
 bun dev
 ```
+
+El explorador abre en <http://localhost:3000/explorar>. Los fixtures se regeneran y validan automáticamente al iniciar.
 
 Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conectar datos reales:
 

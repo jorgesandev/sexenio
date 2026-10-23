@@ -14,7 +14,9 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-Estructura y documentación listas. La aplicación en `web/` todavía no existe. Empieza por el hito M1 de `docs/plan.md`.
+M1 completado: shell responsive, sistema de diseño, estado en URL y explorador con los cuatro indicadores fixture. La aplicación vive en `web/`; el siguiente hito es M2 (ingesta de datos reales).
+
+El explorador se sirve como sitio estático (`output: "export"`). Los fixtures se copian y validan con `bun run sync:data` antes de `dev`, `build` y `test`.
 
 ## Comandos
 
