@@ -1,0 +1,76 @@
+{
+  "events": [
+    {
+      "id": "crisis-1994",
+      "date": "1994-12-20",
+      "title": "Crisis del peso",
+      "type": "economia",
+      "description": "Devaluación del peso y crisis financiera conocida como efecto tequila.",
+      "sourceUrl": "https://www.banxico.org.mx/"
+    },
+    {
+      "id": "michoacan-2006",
+      "date": "2006-12-11",
+      "title": "Operativo Conjunto Michoacán",
+      "type": "seguridad",
+      "description": "Despliegue militar y federal contra el crimen organizado.",
+      "sourceUrl": "https://www.gob.mx/sedena"
+    },
+    {
+      "id": "crisis-2008",
+      "date": "2008-09-15",
+      "title": "Crisis financiera global",
+      "type": "economia",
+      "description": "Quiebra de Lehman Brothers y recesión mundial.",
+      "sourceUrl": "https://www.imf.org/"
+    },
+    {
+      "id": "influenza-2009",
+      "date": "2009-04-23",
+      "title": "Brote de influenza A(H1N1)",
+      "type": "salud",
+      "description": "Emergencia sanitaria con impacto económico y social.",
+      "sourceUrl": "https://www.gob.mx/salud"
+    },
+    {
+      "id": "energetica-2013",
+      "date": "2013-12-20",
+      "title": "Reforma energética",
+      "type": "energia",
+      "description": "Publicación de la reforma constitucional en materia energética.",
+      "sourceUrl": "https://www.dof.gob.mx/"
+    },
+    {
+      "id": "ayotzinapa-2014",
+      "date": "2014-09-26",
+      "title": "Desaparición de los 43 normalistas de Ayotzinapa",
+      "type": "seguridad",
+      "description": "Caso emblemático de desaparición forzada y crisis de derechos humanos.",
+      "sourceUrl": "https://www.gob.mx/"
+    },
+    {
+      "id": "sismo-2017",
+      "date": "2017-09-19",
+      "title": "Sismo de Puebla",
+      "type": "desastre",
+      "description": "Sismo de magnitud 7.1 con daños en el centro del país.",
+      "sourceUrl": "https://www.cenapred.unam.mx/"
+    },
+    {
+      "id": "covid-2020",
+      "date": "2020-03-23",
+      "title": "Emergencia sanitaria por COVID-19",
+      "type": "salud",
+      "description": "Inicio de la Jornada Nacional de Sana Distancia.",
+      "sourceUrl": "https://www.gob.mx/salud"
+    },
+    {
+      "id": "reforma-judicial-2024",
+      "date": "2024-10-01",
+      "title": "Entrada en vigor de la reforma judicial",
+      "type": "instituciones",
+      "description": "Inicio del nuevo modelo de elección de jueces y ministros.",
+      "sourceUrl": "https://www.dof.gob.mx/"
+    }
+  ]
+}

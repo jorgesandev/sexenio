@@ -1,0 +1,116 @@
+# Plan de trabajo
+
+## Decisiones cerradas
+
+| Tema | Decisión |
+|---|---|
+| Periodo | 1994-12 a hoy; 6 sexenios |
+| Sheinbaum | Se muestra como "en curso"; nunca se promedia contra sexenios cerrados |
+| Idioma | Español en v0; strings centralizados |
+| Alcance inicial | 4 indicadores: homicidio, PIB per cápita, pobreza, deuda SHRFSP |
+| Datos de desarrollo | Fixtures sintéticos marcados; nunca se presentan como reales |
+| Ranking | Solo lo construye el usuario; sin score por defecto |
+| Deploy | Cloudflare Pages (estático) |
+| Backend | Ninguno en v0; estado en URL |
+
+## Hitos
+
+### M0 — Repo y documentación (hecho)
+
+- [x] Estructura, README, licencia.
+- [x] Visión, indicadores, fuentes.
+- [x] AGENTS.md, spec, plan, modelo de datos, diseño.
+- [x] Metadatos y fixtures sintéticos.
+
+### M1 — Shell y sistema de diseño
+
+Depende de: nada. No requiere tokens.
+
+- [ ] Scaffold Next.js + TypeScript + Tailwind v4 en `web/`.
+- [ ] Tokens de color y tipografía de `docs/design.md`.
+- [ ] Header, tabs, sidebar, drawer y layout responsive.
+- [ ] Estado de URL con defaults y validación.
+- [ ] Componente `TimeSeriesChart` con ECharts y datos fixture.
+- [ ] Tabla accesible y franja de cobertura.
+- [ ] Banner de datos sintéticos.
+
+**Terminado cuando:** `/explorar` muestra los 4 indicadores fixture, cambia de rango y vista, y la URL reproduce el estado.
+
+### M2 — Explorador con datos reales (4 indicadores)
+
+Depende de: M1 y tokens de INEGI/Banxico (o CSV manual trazable).
+
+- [ ] `etl/` con descarga, normalización y validación.
+- [ ] Ingesta de homicidios (SESNSP e INEGI), PIB per cápita, pobreza y deuda SHRFSP.
+- [ ] Metadatos de procedencia y `vintage` por observación.
+- [ ] Quiebres metodológicos visibles.
+- [ ] Exportación CSV de la vista.
+
+**Terminado cuando:** los 4 indicadores salen de fuente real, con fuente y fecha visibles, y los fixtures quedan solo como fallback de desarrollo.
+
+### M3 — Comparador
+
+Depende de: M2.
+
+- [ ] Alineación por mes de sexenio.
+- [ ] Superposición de hasta 4 sexenios.
+- [ ] Tendencia heredada (36 meses previos) con nota.
+- [ ] Small multiples.
+- [ ] Tabla resumen por sexenio.
+- [ ] Tratamiento de sexenio en curso.
+
+**Terminado cuando:** comparar Fox vs. AMLO en homicidios y en PIB per cápita es posible en dos clics.
+
+### M4 — Cobertura completa (12 indicadores)
+
+Depende de: M2.
+
+- [ ] Inflación, inversión fija, salario real IMSS, informalidad, Gini, extorsión, ingresos tributarios, gasto en salud.
+- [ ] Series disputadas en paralelo (SESNSP/INEGI).
+- [ ] Capa de eventos.
+- [ ] Matriz de cobertura indicador × año.
+
+**Terminado cuando:** los 12 indicadores están disponibles y la matriz de cobertura refleja la realidad de las fuentes.
+
+### M5 — Constructor de índice
+
+Depende de: M4.
+
+- [ ] Selección de indicadores y pesos.
+- [ ] Normalización z-score y min-max.
+- [ ] Inversión automática según dirección.
+- [ ] Ranking con desglose.
+- [ ] Análisis de sensibilidad ±10 puntos.
+- [ ] Permalink con pesos.
+
+**Terminado cuando:** cambiar un peso actualiza el ranking y la advertencia de sensibilidad sin recargar.
+
+### M6 — Pulido y despliegue
+
+Depende de: M5.
+
+- [ ] Accesibilidad AA y navegación por teclado.
+- [ ] Performance y lazy loading de ECharts.
+- [ ] Metadatos SEO y Open Graph.
+- [ ] Página de metodología generada desde metadatos.
+- [ ] Deploy en Cloudflare Pages.
+- [ ] Smoke tests.
+
+**Terminado cuando:** el sitio público cumple los criterios de aceptación de `docs/spec-v0.md`.
+
+## Riesgos
+
+| Riesgo | Impacto | Mitigación |
+|---|---|---|
+| Falta de tokens INEGI/Banxico | Bloquea ETL | Fixtures para UI; descarga manual documentada |
+| SHCP publica PDFs | Ingesta frágil | CSV manual versionado con URL y fecha |
+| CONEVAL absorbido por INEGI | Serie de pobreza incierta | Verificar fuente vigente antes de M2 |
+| Discrepancia SESNSP/INEGI | Datos "contradictorios" | Mostrar ambas series, nunca elegir una |
+| Sexenio incompleto | Comparación injusta | Badge "en curso" y exclusión del ranking |
+| Scope creep | Retraso | 4 indicadores primero; el resto en M4 |
+
+## Orden recomendado para una sesión nueva
+
+1. Leer `AGENTS.md` y `docs/spec-v0.md`.
+2. Ejecutar M1 completo con fixtures; no esperar tokens.
+3. Solo después avanzar a M2.

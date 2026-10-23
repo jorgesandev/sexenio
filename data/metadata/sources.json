@@ -1,0 +1,116 @@
+{
+  "sources": [
+    {
+      "id": "inegi",
+      "name": "INEGI",
+      "url": "https://www.inegi.org.mx/",
+      "access": "api",
+      "license": "Consultar términos de libre uso",
+      "notes": "API BISE requiere token."
+    },
+    {
+      "id": "banxico",
+      "name": "Banco de México",
+      "url": "https://www.banxico.org.mx/",
+      "access": "api",
+      "license": "Consultar términos de uso",
+      "notes": "API SIE requiere token."
+    },
+    {
+      "id": "shcp",
+      "name": "Secretaría de Hacienda y Crédito Público",
+      "url": "https://www.gob.mx/shcp",
+      "access": "mixed",
+      "license": "Consultar términos de uso",
+      "notes": "Datos abiertos y PDFs; requiere validación manual."
+    },
+    {
+      "id": "sesnsp",
+      "name": "Secretariado Ejecutivo del Sistema Nacional de Seguridad Pública",
+      "url": "https://www.gob.mx/sesnsp/acciones-y-programas/datos-abiertos-de-incidencia-delictiva",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Incidencia delictiva mensual; mide denuncias."
+    },
+    {
+      "id": "coneval",
+      "name": "CONEVAL",
+      "url": "https://www.coneval.org.mx/",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Funciones absorbidas por INEGI en 2025; verificar serie vigente."
+    },
+    {
+      "id": "imss",
+      "name": "Instituto Mexicano del Seguro Social",
+      "url": "https://www.imss.gob.mx/",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Puestos de trabajo y salario base de cotización."
+    },
+    {
+      "id": "salud",
+      "name": "Secretaría de Salud",
+      "url": "https://www.gob.mx/salud",
+      "access": "mixed",
+      "license": "Consultar términos de uso",
+      "notes": "Gasto y cobertura; calidad heterogénea."
+    },
+    {
+      "id": "oms",
+      "name": "Organización Mundial de la Salud",
+      "url": "https://www.who.int/data/gho",
+      "access": "api",
+      "license": "CC BY-NC-SA 3.0 IGO",
+      "notes": "Series comparables internacionalmente."
+    },
+    {
+      "id": "wb",
+      "name": "Banco Mundial",
+      "url": "https://data.worldbank.org/",
+      "access": "api",
+      "license": "CC BY 4.0",
+      "notes": "Benchmark macro y social."
+    },
+    {
+      "id": "imf",
+      "name": "Fondo Monetario Internacional",
+      "url": "https://www.imf.org/en/Publications/WEO",
+      "access": "api",
+      "license": "Consultar términos de uso",
+      "notes": "WEO e IFS."
+    },
+    {
+      "id": "oecd",
+      "name": "OCDE",
+      "url": "https://data.oecd.org/",
+      "access": "api",
+      "license": "Consultar términos de uso",
+      "notes": "PISA, salud, ingresos tributarios."
+    },
+    {
+      "id": "vdem",
+      "name": "V-Dem Institute",
+      "url": "https://v-dem.net/",
+      "access": "csv",
+      "license": "CC BY 4.0",
+      "notes": "Contrapesos y calidad democrática."
+    },
+    {
+      "id": "wjp",
+      "name": "World Justice Project",
+      "url": "https://worldjusticeproject.org/",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Índice de Estado de derecho desde 2012."
+    },
+    {
+      "id": "transparency",
+      "name": "Transparencia Internacional",
+      "url": "https://www.transparency.org/en/cpi",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Índice de percepción; subjetivo y con rezago."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "terms": [
+    {
+      "id": "zedillo",
+      "name": "Ernesto Zedillo",
+      "party": "PRI",
+      "start": "1994-12-01",
+      "end": "2000-11-30",
+      "color": "#0072B2",
+      "inProgress": false,
+      "note": ""
+    },
+    {
+      "id": "fox",
+      "name": "Vicente Fox",
+      "party": "PAN",
+      "start": "2000-12-01",
+      "end": "2006-11-30",
+      "color": "#009E73",
+      "inProgress": false,
+      "note": "Primer gobierno de alternancia."
+    },
+    {
+      "id": "calderon",
+      "name": "Felipe Calderón",
+      "party": "PAN",
+      "start": "2006-12-01",
+      "end": "2012-11-30",
+      "color": "#D55E00",
+      "inProgress": false,
+      "note": ""
+    },
+    {
+      "id": "pena",
+      "name": "Enrique Peña Nieto",
+      "party": "PRI",
+      "start": "2012-12-01",
+      "end": "2018-11-30",
+      "color": "#CC79A7",
+      "inProgress": false,
+      "note": ""
+    },
+    {
+      "id": "amlo",
+      "name": "Andrés Manuel López Obrador",
+      "party": "MORENA",
+      "start": "2018-12-01",
+      "end": "2024-09-30",
+      "color": "#E69F00",
+      "inProgress": false,
+      "note": "Transición adelantada por reforma constitucional."
+    },
+    {
+      "id": "sheinbaum",
+      "name": "Claudia Sheinbaum",
+      "party": "MORENA",
+      "start": "2024-10-01",
+      "end": "2030-09-30",
+      "color": "#56B4E9",
+      "inProgress": true,
+      "note": "Sexenio en curso; no promediar contra periodos cerrados."
+    }
+  ]
+}
