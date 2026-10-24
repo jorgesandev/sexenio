@@ -22,6 +22,10 @@ export interface ExplorerContext {
   minMonth: string;
   /** Mes de referencia del corte de datos, en `YYYY-MM`. */
   today: string;
+  /** Subconjunto inicial de sexenios; por defecto, todos. */
+  defaultTermIds?: readonly string[];
+  /** Alineación inicial; por defecto, calendario. */
+  defaultAlign?: AlignMode;
 }
 
 export interface ExplorerState {
@@ -108,7 +112,8 @@ function parseTermIds(
   invalidKeys: string[],
 ): string[] {
   const allTerms = [...context.termIds];
-  if (raw === null) return allTerms;
+  const fallback = [...(context.defaultTermIds ?? context.termIds)];
+  if (raw === null) return fallback;
 
   const known = new Set(context.termIds);
   const tokens = parseList(raw);
@@ -117,7 +122,7 @@ function parseTermIds(
 
   if (tokens.length === 0 || selected.size === 0) {
     addInvalid(invalidKeys, "t");
-    return allTerms;
+    return fallback;
   }
 
   if (hadInvalid) addInvalid(invalidKeys, "t");
@@ -208,9 +213,9 @@ export function defaultExplorerState(
 ): ExplorerState {
   return {
     indicatorIds: [context.defaultIndicatorId],
-    termIds: [...context.termIds],
+    termIds: [...(context.defaultTermIds ?? context.termIds)],
     view: "level",
-    align: "calendar",
+    align: context.defaultAlign ?? "calendar",
     from: context.minMonth,
     to: context.today,
     scale: "linear",
@@ -328,7 +333,7 @@ export function buildExplorerSearchParams(
 
   if (
     state.termIds.length > 0 &&
-    !setsEqual(state.termIds, context.termIds)
+    !setsEqual(state.termIds, defaults.termIds)
   ) {
     params.set(
       "t",

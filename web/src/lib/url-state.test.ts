@@ -20,6 +20,12 @@ const CONTEXT: ExplorerContext = {
   today: "2026-10",
 };
 
+const COMPARATOR_CONTEXT: ExplorerContext = {
+  ...CONTEXT,
+  defaultTermIds: ["fox", "amlo"],
+  defaultAlign: "term",
+};
+
 function parse(query: string) {
   return parseExplorerState(new URLSearchParams(query), CONTEXT);
 }
@@ -152,6 +158,62 @@ describe("parseExplorerState", () => {
 
     expect(result.state.indicatorIds).toEqual(["pobreza_mult"]);
     expect(result.invalidKeys).toEqual([]);
+  });
+});
+
+describe("comparator defaults", () => {
+  test("la URL vacía usa Fox, AMLO y alineación por sexenio", () => {
+    const state = defaultExplorerState(COMPARATOR_CONTEXT);
+
+    expect(state.termIds).toEqual(["fox", "amlo"]);
+    expect(state.align).toBe("term");
+    expect(buildExplorerQuery(state, COMPARATOR_CONTEXT)).toBe("");
+  });
+
+  test("serializa solo lo que difiere del default del comparador", () => {
+    const state = {
+      ...defaultExplorerState(COMPARATOR_CONTEXT),
+      termIds: ["fox", "amlo", "sheinbaum"],
+      align: "calendar" as const,
+    };
+
+    expect(buildExplorerQuery(state, COMPARATOR_CONTEXT)).toBe(
+      "t=fox,amlo,sheinbaum&align=calendar",
+    );
+  });
+
+  test("un t inválido cae al default del comparador y se reporta", () => {
+    const result = parseExplorerState(
+      new URLSearchParams("t=xyz&align=nope"),
+      COMPARATOR_CONTEXT,
+    );
+
+    expect(result.state.termIds).toEqual(["fox", "amlo"]);
+    expect(result.state.align).toBe("term");
+    expect(result.invalidKeys).toEqual(["t", "align"]);
+  });
+
+  test("permite seleccionar los seis sexenios", () => {
+    const result = parseExplorerState(
+      new URLSearchParams(
+        "t=zedillo,fox,calderon,pena,amlo,sheinbaum&align=term",
+      ),
+      COMPARATOR_CONTEXT,
+    );
+
+    expect(result.state.termIds).toEqual([...COMPARATOR_CONTEXT.termIds]);
+    expect(buildExplorerQuery(result.state, COMPARATOR_CONTEXT)).toBe(
+      "t=zedillo,fox,calderon,pena,amlo,sheinbaum",
+    );
+  });
+
+  test("conserva la fuente de homicidios en la URL", () => {
+    const state = {
+      ...defaultExplorerState(COMPARATOR_CONTEXT),
+      source: "sesnsp" as const,
+    };
+
+    expect(buildExplorerQuery(state, COMPARATOR_CONTEXT)).toBe("src=sesnsp");
   });
 });
 

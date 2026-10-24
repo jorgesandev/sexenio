@@ -25,14 +25,16 @@ Parámetros legibles, con defaults. Cualquier valor inválido cae al default sin
 | Parámetro | Valores | Default |
 |---|---|---|
 | `i` | IDs separados por coma | `homicidio_100k` |
-| `t` | sexenios separados por coma | todos |
+| `t` | sexenios separados por coma | todos; en `/comparar`, Fox y AMLO |
 | `view` | `level` \| `delta` \| `index` | `level` |
-| `align` | `calendar` \| `term` | `calendar` |
+| `align` | `calendar` \| `term` | `calendar`; en `/comparar`, `term` |
 | `from`, `to` | `YYYY-MM` | 1994-12 a hoy |
 | `scale` | `linear` \| `log` | `linear` |
 | `ma` | `0` \| `3` \| `12` (meses) | `0` |
 | `w` | `id:peso` separados por coma | pesos iguales |
 | `src` | `inegi` \| `sesnsp` (solo homicidios) | `inegi` |
+
+El comparador tiene un default de producto distinto al explorador: Fox vs. AMLO, alineación por mes de sexenio. Sin `t` ni `align`, `/comparar` reproduce ese caso; el explorador conserva todos los sexenios y calendario.
 
 Reglas:
 
@@ -83,6 +85,8 @@ Reglas:
 - Small multiples cuando hay más de 4 sexenios o más de un indicador.
 - Sexenio en curso: línea sólida hasta el último dato y luego punteada; badge "en curso". Nunca se promedia como si estuviera cerrado.
 - Tabla resumen por sexenio: promedio, cambio acumulado, mínimo, máximo, cobertura y número de observaciones.
+- `src` permite cambiar entre INEGI anual y SESNSP mensual en homicidios; se muestra la discrepancia y no se empalman las fuentes.
+- Tabla de datos alineados, además del resumen, para que cada gráfica tenga una versión tabular completa.
 
 ## Constructor
 

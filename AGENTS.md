@@ -14,7 +14,7 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-M2 completado: el explorador usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. La exportación CSV de la vista está disponible. El siguiente hito es M3 (comparador).
+M3 completado: el explorador y el comparador usan datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. El comparador incluye alineación por sexenio o calendario, tendencia heredada, small multiples, fuente alternativa de homicidios y tabla resumen. El siguiente hito es M4 (cobertura completa).
 
 El ETL escribe `data/processed/` (ignorado). La web empaqueta una copia tipada en `web/src/data/generated/dataset.ts`, que se versiona para builds aislados. Sin datos procesados, `sync:data` conserva el dataset generado; `--fixtures` fuerza el fallback sintético.
 

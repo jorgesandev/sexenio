@@ -1,17 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as echarts from "echarts/core";
-import { LineChart } from "echarts/charts";
-import {
-  GridComponent,
-  MarkAreaComponent,
-  MarkLineComponent,
-  TooltipComponent,
-} from "echarts/components";
-import { CanvasRenderer } from "echarts/renderers";
-import type { EChartsType } from "echarts/core";
 import { buildChartOption } from "@/lib/chart-option";
+import { echarts, type EChartsType } from "@/lib/echarts";
 import type { ChartPoint } from "@/lib/series";
 import type {
   Frequency,
@@ -21,15 +12,6 @@ import type {
   Term,
 } from "@/lib/types";
 import type { ScaleMode, ViewMode } from "@/lib/url-state";
-
-echarts.use([
-  LineChart,
-  GridComponent,
-  TooltipComponent,
-  MarkAreaComponent,
-  MarkLineComponent,
-  CanvasRenderer,
-]);
 
 export interface TimeSeriesChartProps {
   indicator: Indicator;

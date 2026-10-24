@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { SectionPlaceholder } from "@/components/shell/section-placeholder";
+import { Suspense } from "react";
+import { Comparator } from "@/components/comparator/comparator";
+import { ComparatorSkeleton } from "@/components/comparator/comparator-skeleton";
 import { strings } from "@/lib/strings";
 
 export const metadata: Metadata = {
   title: strings.nav.comparar,
+  description: strings.comparator.subtitle,
 };
 
 export default function CompararPage() {
   return (
-    <SectionPlaceholder
-      title={strings.placeholders.compararTitle}
-      body={strings.placeholders.compararBody}
-    />
+    <Suspense fallback={<ComparatorSkeleton />}>
+      <Comparator />
+    </Suspense>
   );
 }

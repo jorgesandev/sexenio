@@ -6,7 +6,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-**M2 completado.** El explorador ya usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. Incluye exportación CSV de la vista. El siguiente hito es **M3**: comparador de sexenios.
+**M3 completado.** El explorador usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. Incluye exportación CSV. El comparador alinea sexenios por mes de gestión o calendario, superpone hasta cuatro series, calcula tendencia heredada, muestra small multiples y resume cada sexenio. El siguiente hito es **M4**: cobertura completa.
 
 ## Documentación
 
@@ -67,7 +67,7 @@ bun install
 bun dev
 ```
 
-El explorador abre en <http://localhost:3000/explorar>. El ETL escribe en `data/processed/` (ignorado) y `web/scripts/sync-data.mjs` empaqueta el dataset tipado que consume la aplicación.
+El explorador abre en <http://localhost:3000/explorar> y el comparador en <http://localhost:3000/comparar>. El ETL escribe en `data/processed/` (ignorado) y `web/scripts/sync-data.mjs` empaqueta el dataset tipado que consume la aplicación.
 
 Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conectar datos reales:
 
@@ -76,7 +76,7 @@ Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conecta
 
 ## Demo pública y despliegue
 
-Explorador M2: <https://sexenio-demo.jorgesandev.workers.dev/explorar/>.
+Explorador y comparador M3: <https://sexenio-demo.jorgesandev.workers.dev/explorar/> y <https://sexenio-demo.jorgesandev.workers.dev/comparar/>.
 Publica el dataset oficial generado; este despliegue no implica el cierre de M6.
 
 El demo se publica mediante Cloudflare Workers Static Assets con `web/wrangler.jsonc`.

@@ -13,13 +13,16 @@ import { fill, strings } from "@/lib/strings";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const isExplorer = normalizePathname(pathname) === "/explorar";
+  const normalizedPathname = normalizePathname(pathname);
+  const isExplorer = normalizedPathname === "/explorar";
+  const isComparator = normalizedPathname === "/comparar";
+  const showsData = isExplorer || isComparator;
   const [catalogOpen, setCatalogOpen] = useState(false);
 
   return (
     <CsvExportProvider>
       <SiteHeader />
-      {isExplorer ? <FixtureBanner /> : null}
+      {showsData ? <FixtureBanner /> : null}
       <div className="mx-auto flex w-full max-w-[1440px] items-start">
         {isExplorer ? (
           <Suspense fallback={<SidebarFallback />}>

@@ -338,6 +338,10 @@
     width: 100%;
   }
 
+  .chart-frame--compact {
+    height: 300px;
+  }
+
   .coverage-bar {
     display: flex;
     height: 12px;
@@ -499,6 +503,10 @@
   @media (max-width: 639px) {
     .chart-frame {
       height: 300px;
+    }
+
+    .chart-frame--compact {
+      height: 260px;
     }
   }
 

@@ -48,18 +48,21 @@ Depende de: M1 y tokens de INEGI/Banxico (o CSV manual trazable).
 
 **Terminado cuando:** los 4 indicadores salen de fuente real, con fuente y fecha visibles, y los fixtures quedan solo como fallback de desarrollo.
 
-### M3 — Comparador
+### M3 — Comparador (hecho)
 
 Depende de: M2.
 
-- [ ] Alineación por mes de sexenio.
-- [ ] Superposición de hasta 4 sexenios.
-- [ ] Tendencia heredada (36 meses previos) con nota.
-- [ ] Small multiples.
-- [ ] Tabla resumen por sexenio.
-- [ ] Tratamiento de sexenio en curso.
+- [x] Alineación por mes de sexenio.
+- [x] Superposición de hasta 4 sexenios.
+- [x] Tendencia heredada (36 meses previos) con nota.
+- [x] Small multiples.
+- [x] Tabla resumen por sexenio.
+- [x] Tratamiento de sexenio en curso.
+- [x] Fuente alternativa de homicidios y tabla de datos alineados.
 
 **Terminado cuando:** comparar Fox vs. AMLO en homicidios y en PIB per cápita es posible en dos clics.
+
+**Nota de producto:** `/comparar` abre con Fox vs. AMLO, homicidios y alineación por mes de sexenio. La URL vacía reproduce esa comparación; los valores globales del explorador siguen siendo todos los sexenios y calendario.
 
 ### M4 — Cobertura completa (12 indicadores)
 
@@ -112,5 +115,5 @@ Depende de: M5.
 ## Orden recomendado para una sesión nueva
 
 1. Leer `AGENTS.md` y `docs/spec-v0.md`.
-2. Ejecutar M1 completo con fixtures; no esperar tokens.
-3. Solo después avanzar a M2.
+2. Verificar M2 y M3 con `bun test`, `bun run lint` y `bun run build`.
+3. Avanzar a M4 (cobertura completa); no abrir M5 antes de cerrar M4.
