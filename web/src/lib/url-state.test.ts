@@ -26,6 +26,21 @@ const COMPARATOR_CONTEXT: ExplorerContext = {
   defaultAlign: "term",
 };
 
+const CONSTRUCTOR_CONTEXT: ExplorerContext = {
+  ...CONTEXT,
+  indicatorIds: [
+    "homicidio_100k",
+    "pib_pc_real",
+    "pobreza_mult",
+    "deuda_shrfsp_pib",
+  ],
+  defaultIndicatorIds: [
+    "pib_pc_real",
+    "pobreza_mult",
+    "deuda_shrfsp_pib",
+  ],
+};
+
 function parse(query: string) {
   return parseExplorerState(new URLSearchParams(query), CONTEXT);
 }
@@ -64,7 +79,7 @@ describe("parseExplorerState", () => {
 
   test("ignora valores inválidos y reporta las claves", () => {
     const result = parse(
-      "i=foo&t=xyz&view=bad&align=bad&from=2030-01&to=1990-01&scale=bad&ma=7&w=foo:10,bar:200&src=nope",
+      "i=foo&t=xyz&view=bad&align=bad&from=2030-01&to=1990-01&scale=bad&ma=7&w=foo:10,bar:200&norm=nope&src=nope",
     );
 
     expect(result.state).toEqual(defaultExplorerState(CONTEXT));
@@ -77,6 +92,7 @@ describe("parseExplorerState", () => {
       "to",
       "scale",
       "ma",
+      "norm",
       "w",
       "src",
     ]);
@@ -214,6 +230,57 @@ describe("comparator defaults", () => {
     };
 
     expect(buildExplorerQuery(state, COMPARATOR_CONTEXT)).toBe("src=sesnsp");
+  });
+});
+
+describe("constructor defaults", () => {
+  test("la URL vacía usa tres indicadores y z-score", () => {
+    const state = defaultExplorerState(CONSTRUCTOR_CONTEXT);
+
+    expect(state.indicatorIds).toEqual([
+      "pib_pc_real",
+      "pobreza_mult",
+      "deuda_shrfsp_pib",
+    ]);
+    expect(state.norm).toBe("zscore");
+    expect(buildExplorerQuery(state, CONSTRUCTOR_CONTEXT)).toBe("");
+  });
+
+  test("serializa la normalización cuando no es z-score", () => {
+    const result = parseExplorerState(
+      new URLSearchParams("norm=minmax"),
+      CONSTRUCTOR_CONTEXT,
+    );
+
+    expect(result.state.norm).toBe("minmax");
+    expect(buildExplorerQuery(result.state, CONSTRUCTOR_CONTEXT)).toBe(
+      "norm=minmax",
+    );
+  });
+
+  test("serializa un subconjunto propio de indicadores", () => {
+    const result = parseExplorerState(
+      new URLSearchParams("i=pib_pc_real,pobreza_mult"),
+      CONSTRUCTOR_CONTEXT,
+    );
+
+    expect(result.state.indicatorIds).toEqual([
+      "pib_pc_real",
+      "pobreza_mult",
+    ]);
+    expect(buildExplorerQuery(result.state, CONSTRUCTOR_CONTEXT)).toBe(
+      "i=pib_pc_real,pobreza_mult",
+    );
+  });
+
+  test("una normalización inválida cae a z-score", () => {
+    const result = parseExplorerState(
+      new URLSearchParams("norm=nope"),
+      CONSTRUCTOR_CONTEXT,
+    );
+
+    expect(result.state.norm).toBe("zscore");
+    expect(result.invalidKeys).toEqual(["norm"]);
   });
 });
 

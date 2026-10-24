@@ -77,18 +77,20 @@ Depende de: M2.
 
 **Nota de fuentes M4:** por disponibilidad de APIs abiertas, inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa el índice de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI y en `docs/fuentes.md`.
 
-### M5 — Constructor de índice
+### M5 — Constructor de índice (hecho)
 
 Depende de: M4.
 
-- [ ] Selección de indicadores y pesos.
-- [ ] Normalización z-score y min-max.
-- [ ] Inversión automática según dirección.
-- [ ] Ranking con desglose.
-- [ ] Análisis de sensibilidad ±10 puntos.
-- [ ] Permalink con pesos.
+- [x] Selección de indicadores y pesos.
+- [x] Normalización z-score y min-max.
+- [x] Inversión automática según dirección.
+- [x] Ranking con desglose.
+- [x] Análisis de sensibilidad ±10 puntos.
+- [x] Permalink con pesos.
 
 **Terminado cuando:** cambiar un peso actualiza el ranking y la advertencia de sensibilidad sin recargar.
+
+**Nota de producto:** `/constructor` abre con un ejemplo editable de tres indicadores y pesos iguales. No es un ranking oficial; el usuario elige indicadores, pesos y normalización. El sexenio en curso y los sexenios sin cobertura completa se excluyen con su motivo; nunca se rellenan con cero. El siguiente hito es M6.
 
 ### M6 — Pulido y despliegue
 
@@ -117,5 +119,5 @@ Depende de: M5.
 ## Orden recomendado para una sesión nueva
 
 1. Leer `AGENTS.md` y `docs/spec-v0.md`.
-2. Verificar M2, M3 y M4 con `bun test`, `bun run lint` y `bun run build`.
-3. Avanzar a M5 (constructor de índice) solo después de revisar la calidad de las series M4.
+2. Verificar M2, M3, M4 y M5 con `bun test`, `bun run lint` y `bun run build`.
+3. Avanzar a M6 (pulido y despliegue) solo después de revisar el constructor con datos oficiales.

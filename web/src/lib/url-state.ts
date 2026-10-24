@@ -15,6 +15,9 @@ export type MovingAverage = (typeof MOVING_AVERAGES)[number];
 export const SOURCE_OPTIONS = ["inegi", "sesnsp"] as const;
 export type SourceOption = (typeof SOURCE_OPTIONS)[number];
 
+export const NORMALIZATION_MODES = ["zscore", "minmax"] as const;
+export type NormalizationMode = (typeof NORMALIZATION_MODES)[number];
+
 export interface ExplorerContext {
   indicatorIds: readonly string[];
   termIds: readonly string[];
@@ -22,6 +25,8 @@ export interface ExplorerContext {
   minMonth: string;
   /** Mes de referencia del corte de datos, en `YYYY-MM`. */
   today: string;
+  /** Subconjunto inicial de indicadores; por defecto, el indicador principal. */
+  defaultIndicatorIds?: readonly string[];
   /** Subconjunto inicial de sexenios; por defecto, todos. */
   defaultTermIds?: readonly string[];
   /** Alineación inicial; por defecto, calendario. */
@@ -38,6 +43,7 @@ export interface ExplorerState {
   scale: ScaleMode;
   ma: MovingAverage;
   weights: Record<string, number>;
+  norm: NormalizationMode;
   source: SourceOption;
 }
 
@@ -82,7 +88,10 @@ function parseIndicatorIds(
   context: ExplorerContext,
   invalidKeys: string[],
 ): string[] {
-  if (raw === null) return [context.defaultIndicatorId];
+  const fallback = [
+    ...(context.defaultIndicatorIds ?? [context.defaultIndicatorId]),
+  ];
+  if (raw === null) return fallback;
 
   const known = new Set(context.indicatorIds);
   const tokens = parseList(raw);
@@ -99,7 +108,7 @@ function parseIndicatorIds(
 
   if (tokens.length === 0 || valid.length === 0) {
     addInvalid(invalidKeys, "i");
-    return [context.defaultIndicatorId];
+    return fallback;
   }
 
   if (hadInvalid) addInvalid(invalidKeys, "i");
@@ -212,7 +221,9 @@ export function defaultExplorerState(
   context: ExplorerContext,
 ): ExplorerState {
   return {
-    indicatorIds: [context.defaultIndicatorId],
+    indicatorIds: [
+      ...(context.defaultIndicatorIds ?? [context.defaultIndicatorId]),
+    ],
     termIds: [...(context.defaultTermIds ?? context.termIds)],
     view: "level",
     align: context.defaultAlign ?? "calendar",
@@ -221,6 +232,7 @@ export function defaultExplorerState(
     scale: "linear",
     ma: 0,
     weights: {},
+    norm: "zscore",
     source: "inegi",
   };
 }
@@ -229,8 +241,8 @@ export function parseExplorerState(
   params: SearchParamsReader,
   context: ExplorerContext,
 ): ParseExplorerResult {
-  // `t`, `align` y `w` se validan y conservan desde M1 aunque el explorador
-  // todavía no los use: los consumen el comparador y el constructor (M3/M5).
+  // `t`, `align`, `w` y `norm` se validan y conservan desde M1 aunque el
+  // explorador todavía no los use: los consumen el comparador y el constructor.
   const invalidKeys: string[] = [];
   const defaults = defaultExplorerState(context);
 
@@ -273,6 +285,14 @@ export function parseExplorerState(
 
   const ma = parseMovingAverage(params.get("ma"), invalidKeys);
 
+  const norm = parseEnum(
+    params.get("norm"),
+    NORMALIZATION_MODES,
+    defaults.norm,
+    "norm",
+    invalidKeys,
+  );
+
   const weights = parseWeights(
     params.get("w"),
     new Set(context.indicatorIds),
@@ -298,6 +318,7 @@ export function parseExplorerState(
       scale,
       ma,
       weights,
+      norm,
       source,
     },
     invalidKeys,
@@ -323,10 +344,7 @@ export function buildExplorerSearchParams(
 
   if (
     state.indicatorIds.length > 0 &&
-    !(
-      state.indicatorIds.length === 1 &&
-      state.indicatorIds[0] === defaults.indicatorIds[0]
-    )
+    !setsEqual(state.indicatorIds, defaults.indicatorIds)
   ) {
     params.set("i", state.indicatorIds.join(","));
   }
@@ -349,6 +367,7 @@ export function buildExplorerSearchParams(
   if (state.to !== defaults.to) params.set("to", state.to);
   if (state.scale !== defaults.scale) params.set("scale", state.scale);
   if (state.ma !== defaults.ma) params.set("ma", String(state.ma));
+  if (state.norm !== defaults.norm) params.set("norm", state.norm);
 
   const weightEntries = Object.entries(state.weights).sort(([a], [b]) =>
     a.localeCompare(b),

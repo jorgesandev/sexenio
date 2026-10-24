@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { SectionPlaceholder } from "@/components/shell/section-placeholder";
+import { Suspense } from "react";
+import { Constructor } from "@/components/constructor/constructor";
+import { ConstructorSkeleton } from "@/components/constructor/constructor-skeleton";
 import { strings } from "@/lib/strings";
 
 export const metadata: Metadata = {
   title: strings.nav.constructor,
+  description: strings.builder.subtitle,
 };
 
 export default function ConstructorPage() {
   return (
-    <SectionPlaceholder
-      title={strings.placeholders.constructorTitle}
-      body={strings.placeholders.constructorBody}
-    />
+    <Suspense fallback={<ConstructorSkeleton />}>
+      <Constructor />
+    </Suspense>
   );
 }

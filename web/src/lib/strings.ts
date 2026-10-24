@@ -10,7 +10,7 @@ export const strings = {
   meta: {
     title: "Sexenio — Indicadores de México",
     description:
-      "Explorador de indicadores de México para comparar presidentes y sexenios con datos trazables. Sin ranking por defecto.",
+      "Explorador de indicadores de México para comparar presidentes y sexenios con datos trazables. El índice compuesto lo construye el usuario.",
   },
   root: {
     body: "Redirigiendo al explorador…",
@@ -225,6 +225,97 @@ export const strings = {
     noteM4:
       "Para completar los 12 indicadores se usaron series anuales del Banco Mundial en inversión/PIB, Gini, ingresos tributarios y gasto en salud, y el índice de remuneraciones medias reales de INEGI como proxy del salario formal. Estas decisiones están declaradas en la metodología de cada indicador.",
   },
+  builder: {
+    eyebrow: "Constructor",
+    title: "Construye tu índice",
+    subtitle:
+      "Elige al menos tres indicadores, ajusta sus pesos y observa cómo cambia el orden. El índice es tuyo: no es un ranking oficial ni una recomendación.",
+    startNote:
+      "Punto de partida editable: tres indicadores de cobertura amplia y pesos iguales. Agrega o quita indicadores para construir tu propia comparación.",
+    exampleBadge: "Ejemplo editable",
+    inProgressExcluded:
+      "Sexenio en curso; no se incluye en el ranking ni se promedia contra periodos cerrados.",
+    vintage: "Corte {vintage}",
+    indicatorsLegend: "Indicadores",
+    indicatorsHelp:
+      "Selecciona al menos tres. La cobertura se evalúa por sexenio; si un indicador falta, ese sexenio se excluye del ranking.",
+    selectedCount: "{selected} de {total} seleccionados",
+    minIndicators:
+      "Elige al menos {count} indicadores para calcular el índice.",
+    weightsLegend: "Pesos",
+    weightsHelp:
+      "Los controles van de 0 a 100. El índice normaliza automáticamente la suma a 100%.",
+    weightLabel: "Peso de {indicator}",
+    weightShort: "Peso",
+    weightShare: "{share}% del índice",
+    equalWeights: "Igualar pesos",
+    normalizationLegend: "Normalización",
+    normalizationZscore: "Z-score",
+    normalizationMinmax: "Min-max",
+    normalizationZHelp:
+      "Cada indicador se centra en su media y se divide por su desviación estándar. Los valores pueden ser negativos.",
+    normalizationMinmaxHelp:
+      "Cada indicador se escala de 0 a 100 entre el mínimo y el máximo de los sexenios incluidos.",
+    directionUp: "Más es mejor",
+    directionDown: "Más es peor",
+    reset: "Restablecer constructor",
+    rankingTitle: "Ranking construido",
+    rankingDescriptionZ:
+      "El puntaje es la suma ponderada de los valores z. Solo se rankean sexenios cerrados con todos los indicadores seleccionados.",
+    rankingDescriptionMinmax:
+      "El puntaje es la suma ponderada de los valores normalizados de 0 a 100. Solo se rankean sexenios cerrados con todos los indicadores seleccionados.",
+    rankingNote:
+      "El orden depende de los indicadores y pesos elegidos. Cambia un peso para ver cómo se mueve.",
+    rankingBarNote:
+      "La barra compara el puntaje con el resto de los sexenios incluidos; no es un porcentaje de cumplimiento.",
+    position: "Pos.",
+    term: "Sexenio",
+    indexScore: "Índice",
+    noRankingTitle: "Faltan indicadores",
+    noRankingBody:
+      "El constructor requiere al menos tres indicadores para formar un índice. Agrega uno o dos más para ver el ranking.",
+    noEligibleTitle: "No hay sexenios comparables",
+    noEligibleBody:
+      "Ningún sexenio cerrado tiene datos para todos los indicadores seleccionados. Revisa la cobertura o quita un indicador.",
+    excludedTitle: "Sexenios excluidos",
+    excludedNote:
+      "No se rellenan huecos con cero. Un sexenio entra al ranking solo si todos los indicadores seleccionados tienen promedio comparable.",
+    reasonInProgress: "En curso",
+    reasonBreak: "Quiebre metodológico",
+    reasonOutside: "Fuera de cobertura",
+    reasonLow: "Cobertura insuficiente",
+    reasonNoData: "Sin datos",
+    reasonUnavailable: "Promedio no disponible",
+    breakdownTitle: "Desglose por indicador",
+    breakdownDescription:
+      "Cada celda muestra el valor normalizado por indicador. El puntaje final es la suma ponderada; el detalle de promedio, peso y aporte está en el título de cada celda.",
+    normalized: "Normalizado",
+    contribution: "Aporte",
+    score: "Puntaje",
+    rawAverage: "Promedio",
+    sourceTitle: "Fuentes del índice",
+    sourceNote:
+      "Cada indicador conserva su fuente y frecuencia. Las series del Banco Mundial son anuales; las de INEGI y SESNSP tienen la cadencia indicada en el explorador.",
+    sensitivityTitle: "Sensibilidad ±10 puntos",
+    sensitivityDescription:
+      "Para cada indicador se prueba subir y bajar 10 puntos de peso, renormalizando el resto. Si el orden cambia, se advierte.",
+    sensitivityNoChanges:
+      "Ninguna de las combinaciones probadas cambió el orden del ranking.",
+    sensitivityChanged:
+      "El orden cambia en {count} combinaciones de pesos. Revisa la sensibilidad antes de concluir.",
+    sensitivityCase: "{indicator}: {delta} puntos",
+    sensitivityOrder: "Orden resultante: {order}",
+    sensitivityRangeTitle: "Rango de posiciones",
+    sensitivityRangeColumn: "Rango",
+    sensitivityRangeHelp:
+      "Posición base y rango observado al mover cada peso ±10 puntos.",
+    baseline: "Base",
+    positionRange: "{min}–{max}",
+    allZeroWeights:
+      "Todos los pesos están en cero. Para calcular el índice se usa una ponderación igual; ajusta al menos un peso.",
+    coverage: "Cobertura",
+    termCount: "{available} de {total} sexenios cerrados",
+  },
   sourceComparison: {
     title: "Fuentes en paralelo",
     description:
@@ -343,13 +434,15 @@ export const strings = {
     errorDetail: "Detalle técnico",
     errorBack: "Volver a Explorar",
     errorBackComparator: "Volver a Comparar",
+    errorBackConstructor: "Volver al Constructor",
   },
   footer: {
     note: "Datos sintéticos de desarrollo",
     officialNote: "Fuentes oficiales",
     vintage: "Corte {vintage}",
     methodology: "Metodología y fuentes",
-    noRanking: "Sin ranking por defecto: el índice lo construye el usuario.",
+    noRanking:
+      "El índice lo construye el usuario; no hay un ranking único.",
   },
   notFound: {
     eyebrow: "404",

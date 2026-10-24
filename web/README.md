@@ -1,6 +1,6 @@
 # web
 
-Aplicación Next.js (App Router) del explorador y comparador de sexenios. Implementa **M4**: 12 indicadores, series disputadas en paralelo, eventos históricos, matriz de cobertura, comparador alineado con small multiples y exportación CSV.
+Aplicación Next.js (App Router) del explorador, comparador y constructor de sexenios. Implementa **M5**: 12 indicadores, series disputadas en paralelo, eventos históricos, matriz de cobertura, comparador alineado con small multiples, exportación CSV y constructor de índice con z-score/min-max, exclusión por cobertura y sensibilidad ±10 puntos.
 
 ## Comandos
 
@@ -24,11 +24,14 @@ src/
 │   ├── shell/               # header, sidebar, drawer, banner, layout
 │   ├── explorer/            # controles, gráfica, tabla, cobertura, fuentes y eventos
 │   ├── comparator/          # controles, gráficas, resumen y datos alineados
+│   ├── constructor/         # selección, pesos, ranking, desglose y sensibilidad
 │   ├── methodology/         # matriz de cobertura
 │   └── ui/                  # controles segmentados, month picker, badges
 ├── data/generated/          # dataset tipado, generado; no editar
 └── lib/
     ├── url-state.ts         # parseo, validación y serialización de la URL
+    ├── constructor.ts       # normalización, ranking, exclusiones y sensibilidad
+    ├── constructor-context.ts # defaults del constructor
     ├── series.ts            # filtros, media móvil, vistas, huecos
     ├── coverage.ts          # cobertura anual y quiebres
     ├── chart-option.ts      # opciones ECharts del explorador
@@ -45,7 +48,7 @@ src/
 - `../etl/build_dataset.py` descarga y normaliza las fuentes oficiales; escribe `../data/processed/observations.json` (ignorado) y un manifiesto de cobertura.
 - `scripts/sync-data.mjs` prefiere `../data/processed/observations.json`, valida catálogo, unidades, fechas, estatus y cadencia, y genera `src/data/generated/dataset.ts`. Si no hay datos procesados, conserva el dataset generado versionado.
 - El dataset generado se versiona para que `web/` compile de forma aislada (Cloudflare Pages). `bun run sync:data --fixtures` fuerza el fallback sintético.
-- M4 cubre los 12 indicadores del catálogo. El explorador y el comparador se habilitan a partir de las observaciones disponibles.
+- M5 cubre los 12 indicadores del catálogo. El explorador y el comparador se habilitan a partir de las observaciones disponibles; el constructor excluye los sexenios sin cobertura completa para los indicadores elegidos.
 - Homicidios tiene dos fuentes: INEGI anual y SESNSP mensual. La frecuencia se guarda por observación, no solo por indicador. La sección “Fuentes en paralelo” muestra ambas sin empalmarlas.
 - Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa el índice mensual de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI, `docs/fuentes.md` y `/metodologia`.
 - Los eventos históricos se dibujan como puntos y se listan con fecha, descripción y fuente.
@@ -63,17 +66,18 @@ En el comparador, el botón exporta el resumen por indicador y sexenio (promedio
 
 La URL es la única fuente de verdad de la vista. Defaults y validación viven en `lib/url-state.ts`; cualquier valor inválido cae al default y se reporta en la UI.
 
-| Parámetro | M4 |
+| Parámetro | M5 |
 |---|---|
-| `i` | indicador activo (lista separada por comas; el explorador usa el primero) |
+| `i` | indicadores activos (lista separada por comas); el explorador usa el primero y el constructor parte de tres |
 | `t` | sexenios seleccionados; todos en el explorador, Fox y AMLO por defecto en el comparador |
 | `align` | `calendar`, `term`; el comparador usa `term` por defecto |
 | `view` | `level`, `delta`, `index` |
 | `from`, `to` | rango `YYYY-MM` |
 | `scale` | `linear`, `log` |
 | `ma` | `0`, `3`, `12` meses; no aplica a series anuales/bienales |
+| `norm` | `zscore`, `minmax`; `zscore` por defecto |
 | `src` | `inegi`, `sesnsp` (homicidios; INEGI anual, SESNSP mensual) |
-| `w` | validado y preservado; reservado para M5 |
+| `w` | `id:peso` separados por coma; pesos iguales por defecto |
 
 Las comas y los dos puntos no se escapan en la query para mantener la URL legible.
 
@@ -87,6 +91,8 @@ Las comas y los dos puntos no se escapan en la query para mantener la URL legibl
 - La tendencia heredada usa los 36 meses previos al inicio del sexenio y requiere al menos 3 observaciones. La escala del comparador prioriza los datos observados.
 - Los eventos se dibujan solo dentro de la cobertura de la serie y se listan completos en el periodo.
 - Las tablas anchas viven en contenedores con scroll propio; el documento no se desplaza horizontalmente en móvil.
+- El constructor abre con un ejemplo editable de tres indicadores. No es un ranking oficial: el usuario elige indicadores, pesos y normalización; la URL reproduce la selección.
+- El constructor usa la fuente principal de cada indicador, excluye sexenios en curso y con cobertura insuficiente, y muestra el motivo. La sensibilidad recalcula ±10 puntos de peso por indicador y advierte si cambia el orden.
 - Las cifras preliminares/estimadas se señalan con badges y avisos; el detalle está en la tabla y el drawer.
 - `prefers-reduced-motion` desactiva transiciones; ECharts no anima.
-- No hay ranking ni índice compuesto en M4.
+- El sitio no impone un ranking único; el constructor no sustituye el juicio del usuario ni oculta la fuente o el corte de datos.

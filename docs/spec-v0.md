@@ -24,13 +24,14 @@ Parámetros legibles, con defaults. Cualquier valor inválido cae al default sin
 
 | Parámetro | Valores | Default |
 |---|---|---|
-| `i` | IDs separados por coma | `homicidio_100k` |
+| `i` | IDs separados por coma | `homicidio_100k`; en `/constructor`, tres indicadores de ejemplo |
 | `t` | sexenios separados por coma | todos; en `/comparar`, Fox y AMLO |
 | `view` | `level` \| `delta` \| `index` | `level` |
 | `align` | `calendar` \| `term` | `calendar`; en `/comparar`, `term` |
 | `from`, `to` | `YYYY-MM` | 1994-12 a hoy |
 | `scale` | `linear` \| `log` | `linear` |
 | `ma` | `0` \| `3` \| `12` (meses) | `0` |
+| `norm` | `zscore` \| `minmax` | `zscore` |
 | `w` | `id:peso` separados por coma | pesos iguales |
 | `src` | `inegi` \| `sesnsp` (solo homicidios) | `inegi` |
 
@@ -91,12 +92,13 @@ Reglas:
 ## Constructor
 
 - Selección de al menos 3 indicadores con cobertura suficiente.
-- Pesos con sliders de 0 a 100; se normalizan a suma 100.
+- Pesos con sliders de 0 a 100; se normalizan a suma 100. La URL guarda los valores crudos y la UI muestra la participación normalizada.
 - Normalización: z-score (default) o min-max, declarada en la UI.
 - Dirección: los indicadores "más es peor" se invierten automáticamente.
 - Resultado: ranking y barras por sexenio, más desglose por indicador.
 - **Sensibilidad obligatoria:** recalcular con ±10 puntos de peso por indicador y mostrar el rango de posiciones. Si el orden cambia, advertirlo en texto.
 - Si falta cobertura, excluir el sexenio del ranking con una nota, no rellenar con cero.
+- El constructor abre con un ejemplo editable de tres indicadores y pesos iguales; no emite un ranking oficial. La URL (`i`, `w`, `norm`) reproduce la construcción.
 
 ## Metodología
 

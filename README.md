@@ -6,7 +6,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-**M4 completado.** El explorador y el comparador cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. Incluye series disputadas en paralelo, eventos históricos, matriz de cobertura, exportación CSV, alineación por sexenio o calendario, tendencia heredada y small multiples. El siguiente hito es **M5**: constructor de índice.
+**M5 completado.** El explorador, el comparador y el constructor cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. El constructor permite elegir al menos tres indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar la sensibilidad del orden a ±10 puntos. El siguiente hito es **M6**: pulido y despliegue.
 
 Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial para inversión/PIB, Gini, ingresos tributarios y gasto en salud, y el índice de remuneraciones medias reales de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI y en la metodología.
 
@@ -29,7 +29,7 @@ Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial par
 - **Tasas y per cápita.** Nunca conteos absolutos sin población o PIB de referencia.
 - **Procedencia visible.** Cada punto enlaza a su fuente, definición, `vintage` y estatus.
 - **Comparabilidad honesta.** Los huecos y quiebres metodológicos se muestran, no se rellenan.
-- **Sin score por defecto.** El índice compuesto es una herramienta del usuario, con análisis de sensibilidad.
+- **Sin score por defecto.** El constructor abre con un ejemplo editable; el índice compuesto es una herramienta del usuario, con análisis de sensibilidad.
 
 ## Modos
 
@@ -49,7 +49,7 @@ Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial par
 │   ├── raw/               # descargas originales (no versionadas)
 │   └── processed/         # datasets normalizados (no versionados)
 ├── etl/                   # ingestión y generación de fixtures
-└── web/                   # aplicación Next.js (M4)
+└── web/                   # aplicación Next.js (M5)
 ```
 
 ## Inicio rápido
@@ -69,7 +69,7 @@ bun install
 bun dev
 ```
 
-El explorador abre en <http://localhost:3000/explorar> y el comparador en <http://localhost:3000/comparar>. El ETL escribe en `data/processed/` (ignorado) y `web/scripts/sync-data.mjs` empaqueta el dataset tipado que consume la aplicación.
+El explorador abre en <http://localhost:3000/explorar>, el comparador en <http://localhost:3000/comparar> y el constructor en <http://localhost:3000/constructor>. El ETL escribe en `data/processed/` (ignorado) y `web/scripts/sync-data.mjs` empaqueta el dataset tipado que consume la aplicación.
 
 Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conectar datos reales:
 
@@ -79,6 +79,7 @@ Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conecta
 ## Demo pública y despliegue
 
 Explorador y comparador M4: <https://sexenio-demo.jorgesandev.workers.dev/explorar/> y <https://sexenio-demo.jorgesandev.workers.dev/comparar/>.
+El constructor M5 está disponible en local y se publicará en el siguiente despliegue.
 Publica el dataset oficial generado; este despliegue no implica el cierre de M6.
 
 El demo se publica mediante Cloudflare Workers Static Assets con `web/wrangler.jsonc`.

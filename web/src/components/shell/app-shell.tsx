@@ -16,8 +16,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const normalizedPathname = normalizePathname(pathname);
   const isExplorer = normalizedPathname === "/explorar";
   const isComparator = normalizedPathname === "/comparar";
+  const isConstructor = normalizedPathname === "/constructor";
   const isMethodology = normalizedPathname === "/metodologia";
-  const showsData = isExplorer || isComparator || isMethodology;
+  const showsData =
+    isExplorer || isComparator || isConstructor || isMethodology;
   const [catalogOpen, setCatalogOpen] = useState(false);
 
   return (

@@ -14,7 +14,7 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-M4 completado: el explorador y el comparador cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. Incluye series disputadas en paralelo, eventos históricos, matriz de cobertura y exportación CSV. Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa un índice de INEGI como proxy del salario formal. El siguiente hito es M5 (constructor de índice).
+M5 completado: el explorador, el comparador y el constructor cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. El constructor permite elegir al menos tres indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar la sensibilidad del orden a ±10 puntos. El siguiente hito es M6 (pulido y despliegue). Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa un índice de INEGI como proxy del salario formal.
 
 El ETL escribe `data/processed/` (ignorado). La web empaqueta una copia tipada en `web/src/data/generated/dataset.ts`, que se versiona para builds aislados. Sin datos procesados, `sync:data` conserva el dataset generado; `--fixtures` fuerza el fallback sintético.
 
