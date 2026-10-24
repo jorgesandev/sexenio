@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-23",
+  "version": "2026-10-24",
   "indicators": [
     {
       "id": "pib_pc_real",
@@ -21,12 +21,12 @@
       "shortName": "Inversión / PIB",
       "dimension": "economia",
       "unit": "% del PIB",
-      "frequency": "quarterly",
+      "frequency": "annual",
       "direction": "up",
-      "sourceId": "inegi",
-      "coverageStart": "1993-01",
+      "sourceId": "wb",
+      "coverageStart": "1960-01",
       "description": "Formación bruta de capital fijo como proporción del PIB.",
-      "methodologyNote": "Precios constantes; no incluye inventarios.",
+      "methodologyNote": "Formación bruta de capital fijo como porcentaje del PIB, serie anual del Banco Mundial (NE.GDI.FTOT.ZS). La serie trimestral de INEGI no está disponible en la API vigente.",
       "breaks": []
     },
     {
@@ -38,23 +38,23 @@
       "frequency": "monthly",
       "direction": "down",
       "sourceId": "inegi",
-      "coverageStart": "1969-01",
+      "coverageStart": "2008-01",
       "description": "Variación anual del Índice Nacional de Precios al Consumidor.",
-      "methodologyNote": "Meta del Banco de México: 3% ± 1 punto porcentual.",
+      "methodologyNote": "Variación anual del INPC, base 2018=100, serie mensual vigente de INEGI (910406). Meta de Banxico: 3% ± 1 punto porcentual.",
       "breaks": []
     },
     {
       "id": "salario_real_imss",
-      "name": "Salario real base de cotización",
+      "name": "Remuneraciones medias reales",
       "shortName": "Salario real",
       "dimension": "empleo",
-      "unit": "pesos constantes",
+      "unit": "índice base 2018=100",
       "frequency": "monthly",
       "direction": "up",
-      "sourceId": "imss",
-      "coverageStart": "1997-01",
-      "description": "Salario base de cotización promedio de los trabajadores afiliados al IMSS, deflactado.",
-      "methodologyNote": "Solo cubre empleo formal; no representa al total de la población ocupada.",
+      "sourceId": "inegi",
+      "coverageStart": "2008-01",
+      "description": "Índice de remuneraciones medias reales por persona ocupada en los sectores económicos.",
+      "methodologyNote": "INEGI, índice global de remuneraciones medias reales (base 2018=100). No es el salario base de cotización del IMSS; se usa como proxy de ingreso laboral formal.",
       "breaks": []
     },
     {
@@ -63,12 +63,12 @@
       "shortName": "Informalidad",
       "dimension": "empleo",
       "unit": "% de la población ocupada",
-      "frequency": "quarterly",
+      "frequency": "monthly",
       "direction": "down",
       "sourceId": "inegi",
       "coverageStart": "2005-01",
       "description": "Proporción de la población ocupada en empleos informales.",
-      "methodologyNote": "ENOE; comparable solo desde 2005. No confundir con desempleo abierto.",
+      "methodologyNote": "Tasa de informalidad laboral TIL1 de la ENOE, serie mensual 444619. Comparable solo desde 2005; no confundir con desempleo abierto.",
       "breaks": []
     },
     {
@@ -96,12 +96,12 @@
       "shortName": "Gini",
       "dimension": "social",
       "unit": "índice 0-1",
-      "frequency": "biennial",
+      "frequency": "annual",
       "direction": "down",
-      "sourceId": "coneval",
-      "coverageStart": "2008-01",
+      "sourceId": "wb",
+      "coverageStart": "1984-01",
       "description": "Desigualdad en la distribución del ingreso; 0 es igualdad total y 1 es desigualdad máxima.",
-      "methodologyNote": "Calculado a partir de ENIGH; verificar comparabilidad entre levantamientos.",
+      "methodologyNote": "Coeficiente de Gini del Banco Mundial (SI.POV.GINI), basado en encuestas de hogares. Se transforma de 0-100 a 0-1.",
       "breaks": []
     },
     {
@@ -155,10 +155,10 @@
       "unit": "% del PIB",
       "frequency": "annual",
       "direction": "up",
-      "sourceId": "shcp",
+      "sourceId": "wb",
       "coverageStart": "1990-01",
       "description": "Recaudación tributaria como proporción del PIB.",
-      "methodologyNote": "Excluye ingresos petroleros y no tributarios.",
+      "methodologyNote": "Ingresos tributarios como porcentaje del PIB, serie anual del Banco Mundial (GC.TAX.TOTL.GD.ZS).",
       "breaks": []
     },
     {
@@ -166,13 +166,13 @@
       "name": "Gasto en salud per cápita",
       "shortName": "Gasto en salud",
       "dimension": "social",
-      "unit": "pesos constantes por habitante",
+      "unit": "USD corrientes por habitante",
       "frequency": "annual",
       "direction": "up",
-      "sourceId": "salud",
+      "sourceId": "wb",
       "coverageStart": "2000-01",
-      "description": "Gasto público en salud por habitante, deflactado.",
-      "methodologyNote": "Incluye gasto federal y estatal; verificar fuentes y año base.",
+      "description": "Gasto corriente en salud por habitante.",
+      "methodologyNote": "Gasto corriente en salud per cápita del Banco Mundial (SH.XPD.CHEX.PC.CD), en USD corrientes. No está deflactado a pesos mexicanos.",
       "breaks": []
     }
   ]

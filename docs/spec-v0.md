@@ -4,7 +4,7 @@
 
 - 6 sexenios: Zedillo (1994–2000), Fox (2000–2006), Calderón (2006–2012), Peña (2012–2018), AMLO (2018–2024) y Sheinbaum (2024–, en curso).
 - 4 indicadores en la primera entrega: `homicidio_100k`, `pib_pc_real`, `pobreza_mult`, `deuda_shrfsp_pib`.
-- 12 indicadores al cerrar v0.
+- 12 indicadores al cerrar v0; M4 ya los expone con la cobertura y las fuentes declaradas en `/metodologia`.
 - Español únicamente; arquitectura lista para i18n.
 - Sin login, sin backend. Estado en URL.
 

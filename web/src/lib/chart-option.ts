@@ -15,10 +15,16 @@ import {
 import type {
   ChartPoint,
 } from "@/lib/series";
-import { frequencyLabels, strings, statusLabels } from "@/lib/strings";
+import {
+  eventTypeLabels,
+  frequencyLabels,
+  strings,
+  statusLabels,
+} from "@/lib/strings";
 import { termAtDate, termsInRange } from "@/lib/terms";
 import type {
   Frequency,
+  HistoricalEvent,
   Indicator,
   Observation,
   Source,
@@ -46,11 +52,32 @@ export interface ChartOptionInput {
   scale: ScaleMode;
   frequency: Frequency;
   fontFamily: string;
+  events?: readonly HistoricalEvent[];
 }
 
 interface TooltipParam {
   axisValue?: number | string;
+  seriesName?: string;
   value?: unknown;
+  data?: unknown;
+}
+
+function eventTooltipData(value: unknown): HistoricalEvent | null {
+  if (!value || typeof value !== "object" || !("event" in value)) return null;
+  const event = (value as { event?: HistoricalEvent }).event;
+  return event ?? null;
+}
+
+function buildEventTooltip(event: HistoricalEvent): string {
+  return [
+    `<div style="min-width:220px;max-width:300px;">`,
+    `<div style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;opacity:.62;margin-bottom:3px;">Evento histórico</div>`,
+    `<div style="font-size:14px;font-weight:600;line-height:1.35;">${escapeHtml(event.title)}</div>`,
+    `<div style="opacity:.72;margin-top:3px;">${escapeHtml(formatPeriodLong(event.date))}</div>`,
+    `<div style="margin-top:6px;line-height:1.4;">${escapeHtml(event.description)}</div>`,
+    `<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(250,249,246,.18);opacity:.72;font-size:10px;">${escapeHtml(eventTypeLabels[event.type] ?? event.type)} · <a href="${escapeHtml(event.sourceUrl)}" target="_blank" rel="noreferrer" style="color:inherit;text-decoration:underline;">Consultar fuente</a></div>`,
+    `</div>`,
+  ].join("");
 }
 
 function escapeHtml(value: string): string {
@@ -97,6 +124,11 @@ function buildTooltipFormatter(input: ChartOptionInput) {
       : [raw as TooltipParam];
     const first = params[0];
     if (!first || first.axisValue === undefined) return "";
+
+    const event = params
+      .map((param) => eventTooltipData(param.data))
+      .find((item): item is HistoricalEvent => item !== null);
+    if (event) return buildEventTooltip(event);
 
     const timestamp =
       typeof first.axisValue === "number"
@@ -270,6 +302,60 @@ export function buildChartOption(input: ChartOptionInput): EChartsCoreOption {
     input.indicator.frequency === "annual" ||
     input.points.length <= 16;
 
+  const firstChartPoint = input.points.find(
+    (point) => point.value !== null,
+  );
+  const lastChartPoint = [...input.points]
+    .reverse()
+    .find((point) => point.value !== null);
+
+  const eventData = (input.events ?? []).flatMap((event) => {
+    const eventMonth = event.date.slice(0, 7);
+    if (eventMonth < input.from || eventMonth > input.to) return [];
+    if (
+      !firstChartPoint ||
+      !lastChartPoint ||
+      event.date < firstChartPoint.date ||
+      event.date > lastChartPoint.date
+    ) {
+      return [];
+    }
+    const pointAfter = input.points.find(
+      (point) => point.date >= event.date && point.value !== null,
+    );
+    const pointBefore = [...input.points]
+      .reverse()
+      .find((point) => point.value !== null);
+    const point = pointAfter ?? pointBefore;
+    if (!point || point.value === null) return [];
+    return [
+      {
+        value: [isoToTimestamp(event.date), point.value],
+        event,
+      },
+    ];
+  });
+
+  const eventSeries =
+    eventData.length > 0
+      ? [
+          {
+            type: "scatter",
+            name: "Eventos",
+            data: eventData,
+            symbol: "circle",
+            symbolSize: 7,
+            z: 5,
+            itemStyle: {
+              color: COLORS.ink,
+              borderColor: COLORS.paper,
+              borderWidth: 1.5,
+            },
+            emphasis: { scale: false },
+          },
+        ]
+      : [];
+
   return {
     animation: false,
     textStyle: {
@@ -371,6 +457,7 @@ export function buildChartOption(input: ChartOptionInput): EChartsCoreOption {
           data: [...transitions, ...breakLines],
         },
       },
+      ...eventSeries,
     ],
   };
 }

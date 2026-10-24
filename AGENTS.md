@@ -14,7 +14,7 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-M3 completado: el explorador y el comparador usan datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. El comparador incluye alineación por sexenio o calendario, tendencia heredada, small multiples, fuente alternativa de homicidios y tabla resumen. El siguiente hito es M4 (cobertura completa).
+M4 completado: el explorador y el comparador cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. Incluye series disputadas en paralelo, eventos históricos, matriz de cobertura y exportación CSV. Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa un índice de INEGI como proxy del salario formal. El siguiente hito es M5 (constructor de índice).
 
 El ETL escribe `data/processed/` (ignorado). La web empaqueta una copia tipada en `web/src/data/generated/dataset.ts`, que se versiona para builds aislados. Sin datos procesados, `sync:data` conserva el dataset generado; `--fixtures` fuerza el fallback sintético.
 

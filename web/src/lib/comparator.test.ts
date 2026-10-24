@@ -4,6 +4,12 @@ import {
   MIN_COMPARABLE_COVERAGE,
   MIN_TREND_OBSERVATIONS,
 } from "./comparator";
+import { dataset } from "./dataset";
+
+// Las aserciones numéricas describen el dataset oficial. El fallback
+// sintético sigue disponible para la UI, pero no comparte esas cifras.
+const officialData = dataset.provenance.kind === "official";
+const testOfficial = officialData ? test : test.skip;
 
 const ALL_TERMS = ["zedillo", "fox", "calderon", "pena", "amlo", "sheinbaum"];
 
@@ -22,7 +28,7 @@ function term(
 }
 
 describe("buildComparatorModel", () => {
-  test("compara Fox y AMLO en homicidios con datos anuales completos", () => {
+  testOfficial("compara Fox y AMLO en homicidios con datos anuales completos", () => {
     const comparisons = model(["homicidio_100k"], ["fox", "amlo"]);
     const fox = term(comparisons, "homicidio_100k", "fox");
     const amlo = term(comparisons, "homicidio_100k", "amlo");
@@ -38,7 +44,7 @@ describe("buildComparatorModel", () => {
     expect(fox?.trend).toHaveLength(72);
   });
 
-  test("alinea los puntos al mes de sexenio", () => {
+  testOfficial("alinea los puntos al mes de sexenio", () => {
     const fox = term(model(["homicidio_100k"], ["fox"]), "homicidio_100k", "fox");
 
     expect(fox?.points[0]?.date).toBe("2001-01-01");
@@ -50,7 +56,7 @@ describe("buildComparatorModel", () => {
     expect(firstTrend?.date).toBe("2000-12-01");
   });
 
-  test("no promedia un sexenio en curso", () => {
+  testOfficial("no promedia un sexenio en curso", () => {
     const sheinbaum = term(
       model(["homicidio_100k"], ["sheinbaum"]),
       "homicidio_100k",
@@ -68,7 +74,7 @@ describe("buildComparatorModel", () => {
     expect(sheinbaum?.hasTrend).toBe(true);
   });
 
-  test("calcula cobertura contra todo el sexenio, no solo contra la serie", () => {
+  testOfficial("calcula cobertura contra todo el sexenio, no solo contra la serie", () => {
     const zedillo = term(
       model(["deuda_shrfsp_pib"], ["zedillo"]),
       "deuda_shrfsp_pib",
@@ -81,7 +87,7 @@ describe("buildComparatorModel", () => {
     expect(zedillo?.average).toBeNull();
   });
 
-  test("bloquea promedio y cambio si el sexenio cruza un quiebre", () => {
+  testOfficial("bloquea promedio y cambio si el sexenio cruza un quiebre", () => {
     const amlo = term(
       model(["pobreza_mult"], ["amlo"]),
       "pobreza_mult",
@@ -98,7 +104,7 @@ describe("buildComparatorModel", () => {
     expect(amlo?.max).not.toBeNull();
   });
 
-  test("usa la cobertura del corte para el sexenio en curso", () => {
+  testOfficial("usa la cobertura del corte para el sexenio en curso", () => {
     const sheinbaum = term(
       model(["pib_pc_real"], ["sheinbaum"]),
       "pib_pc_real",
@@ -112,7 +118,7 @@ describe("buildComparatorModel", () => {
     expect(sheinbaum?.average).toBeNull();
   });
 
-  test("marca sin datos y sin tendencia cuando no hay historia previa", () => {
+  testOfficial("marca sin datos y sin tendencia cuando no hay historia previa", () => {
     const fox = term(
       model(["pobreza_mult"], ["fox"]),
       "pobreza_mult",
@@ -126,7 +132,7 @@ describe("buildComparatorModel", () => {
     expect(fox?.hasTrend).toBe(false);
   });
 
-  test("usa la fuente alternativa de homicidios cuando se pide", () => {
+  testOfficial("usa la fuente alternativa de homicidios cuando se pide", () => {
     const comparisons = buildComparatorModel({
       indicatorIds: ["homicidio_100k"],
       termIds: ["amlo"],
@@ -141,7 +147,7 @@ describe("buildComparatorModel", () => {
     expect(amlo?.hasTrend).toBe(true);
   });
 
-  test("ordena los sexenios por inicio, sin importar la entrada", () => {
+  testOfficial("ordena los sexenios por inicio, sin importar la entrada", () => {
     const comparisons = model(
       ["homicidio_100k"],
       ["amlo", "zedillo", "fox"],
@@ -154,7 +160,7 @@ describe("buildComparatorModel", () => {
     ]);
   });
 
-  test("respeta todos los sexenios de la entrada", () => {
+  testOfficial("respeta todos los sexenios de la entrada", () => {
     const comparisons = model(["homicidio_100k"], ALL_TERMS);
 
     expect(comparisons[0]?.terms).toHaveLength(ALL_TERMS.length);

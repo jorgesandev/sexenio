@@ -1,5 +1,5 @@
 import * as echarts from "echarts/core";
-import { LineChart } from "echarts/charts";
+import { LineChart, ScatterChart } from "echarts/charts";
 import {
   GridComponent,
   MarkAreaComponent,
@@ -10,6 +10,7 @@ import { CanvasRenderer } from "echarts/renderers";
 
 echarts.use([
   LineChart,
+  ScatterChart,
   GridComponent,
   TooltipComponent,
   MarkAreaComponent,

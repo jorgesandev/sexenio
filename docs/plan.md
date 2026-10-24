@@ -64,16 +64,18 @@ Depende de: M2.
 
 **Nota de producto:** `/comparar` abre con Fox vs. AMLO, homicidios y alineación por mes de sexenio. La URL vacía reproduce esa comparación; los valores globales del explorador siguen siendo todos los sexenios y calendario.
 
-### M4 — Cobertura completa (12 indicadores)
+### M4 — Cobertura completa (12 indicadores) (hecho)
 
 Depende de: M2.
 
-- [ ] Inflación, inversión fija, salario real IMSS, informalidad, Gini, extorsión, ingresos tributarios, gasto en salud.
-- [ ] Series disputadas en paralelo (SESNSP/INEGI).
-- [ ] Capa de eventos.
-- [ ] Matriz de cobertura indicador × año.
+- [x] Inflación, inversión fija, remuneraciones reales, informalidad, Gini, extorsión, ingresos tributarios, gasto en salud.
+- [x] Series disputadas en paralelo (SESNSP/INEGI) en el explorador.
+- [x] Capa de eventos con puntos en la gráfica y lista accesible.
+- [x] Matriz de cobertura indicador × año en `/metodologia`.
 
 **Terminado cuando:** los 12 indicadores están disponibles y la matriz de cobertura refleja la realidad de las fuentes.
+
+**Nota de fuentes M4:** por disponibilidad de APIs abiertas, inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa el índice de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI y en `docs/fuentes.md`.
 
 ### M5 — Constructor de índice
 
@@ -115,5 +117,5 @@ Depende de: M5.
 ## Orden recomendado para una sesión nueva
 
 1. Leer `AGENTS.md` y `docs/spec-v0.md`.
-2. Verificar M2 y M3 con `bun test`, `bun run lint` y `bun run build`.
-3. Avanzar a M4 (cobertura completa); no abrir M5 antes de cerrar M4.
+2. Verificar M2, M3 y M4 con `bun test`, `bun run lint` y `bun run build`.
+3. Avanzar a M5 (constructor de índice) solo después de revisar la calidad de las series M4.

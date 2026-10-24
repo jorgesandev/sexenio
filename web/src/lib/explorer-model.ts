@@ -14,6 +14,7 @@ import {
 import type {
   DataStatus,
   Frequency,
+  HistoricalEvent,
   Indicator,
   Observation,
   Source,
@@ -34,6 +35,7 @@ export interface SourceChoice {
 export interface ExplorerModel {
   indicator: Indicator;
   terms: Term[];
+  events: HistoricalEvent[];
   activeSource: Source;
   primarySource: Source;
   activeSourceId: string;
@@ -139,9 +141,15 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
   const latestObservation =
     rangeObservations.at(-1) ?? observations.at(-1) ?? null;
 
+  const events = dataset.events.filter((event) => {
+    const month = isoMonthOf(event.date);
+    return month >= state.from && month <= state.to;
+  });
+
   return {
     indicator,
     terms: dataset.terms,
+    events,
     activeSource,
     primarySource,
     activeSourceId: requestedSourceId,

@@ -1,6 +1,6 @@
 # web
 
-Aplicación Next.js (App Router) del explorador y comparador de sexenios. Implementa **M3**: shell, sistema de diseño, estado en URL, explorador con datos oficiales, comparador alineado con small multiples y exportación CSV.
+Aplicación Next.js (App Router) del explorador y comparador de sexenios. Implementa **M4**: 12 indicadores, series disputadas en paralelo, eventos históricos, matriz de cobertura, comparador alineado con small multiples y exportación CSV.
 
 ## Comandos
 
@@ -22,8 +22,9 @@ src/
 ├── app/                     # rutas: /explorar, /comparar, /constructor, /metodologia
 ├── components/
 │   ├── shell/               # header, sidebar, drawer, banner, layout
-│   ├── explorer/            # controles, gráfica, tabla, cobertura
+│   ├── explorer/            # controles, gráfica, tabla, cobertura, fuentes y eventos
 │   ├── comparator/          # controles, gráficas, resumen y datos alineados
+│   ├── methodology/         # matriz de cobertura
 │   └── ui/                  # controles segmentados, month picker, badges
 ├── data/generated/          # dataset tipado, generado; no editar
 └── lib/
@@ -44,8 +45,11 @@ src/
 - `../etl/build_dataset.py` descarga y normaliza las fuentes oficiales; escribe `../data/processed/observations.json` (ignorado) y un manifiesto de cobertura.
 - `scripts/sync-data.mjs` prefiere `../data/processed/observations.json`, valida catálogo, unidades, fechas, estatus y cadencia, y genera `src/data/generated/dataset.ts`. Si no hay datos procesados, conserva el dataset generado versionado.
 - El dataset generado se versiona para que `web/` compile de forma aislada (Cloudflare Pages). `bun run sync:data --fixtures` fuerza el fallback sintético.
-- Los cuatro indicadores de la primera entrega son `homicidio_100k`, `pib_pc_real`, `pobreza_mult` y `deuda_shrfsp_pib`; el catálogo conserva los 12.
-- Homicidios tiene dos fuentes: INEGI anual y SESNSP mensual. La frecuencia se guarda por observación, no solo por indicador.
+- M4 cubre los 12 indicadores del catálogo. El explorador y el comparador se habilitan a partir de las observaciones disponibles.
+- Homicidios tiene dos fuentes: INEGI anual y SESNSP mensual. La frecuencia se guarda por observación, no solo por indicador. La sección “Fuentes en paralelo” muestra ambas sin empalmarlas.
+- Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa el índice mensual de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI, `docs/fuentes.md` y `/metodologia`.
+- Los eventos históricos se dibujan como puntos y se listan con fecha, descripción y fuente.
+- La matriz de cobertura indicador × año vive en `/metodologia` y usa la fuente principal de cada indicador.
 - Los fixtures siguen existiendo como fallback; la UI solo muestra el banner sintético cuando el dataset generado tiene `kind: "fixture"`.
 - Cada observación conserva `status`, `vintage`, `source_id` y `source_url`; el drawer y la tabla los muestran.
 
@@ -59,7 +63,7 @@ En el comparador, el botón exporta el resumen por indicador y sexenio (promedio
 
 La URL es la única fuente de verdad de la vista. Defaults y validación viven en `lib/url-state.ts`; cualquier valor inválido cae al default y se reporta en la UI.
 
-| Parámetro | M3 |
+| Parámetro | M4 |
 |---|---|
 | `i` | indicador activo (lista separada por comas; el explorador usa el primero) |
 | `t` | sexenios seleccionados; todos en el explorador, Fox y AMLO por defecto en el comparador |
@@ -81,6 +85,8 @@ Las comas y los dos puntos no se escapan en la query para mantener la URL legibl
 - El quiebre metodológico de pobreza (2022) se marca en la franja de cobertura y con una línea vertical en las gráficas; en el comparador la línea se corta y el promedio del sexenio afectado no se calcula.
 - El sexenio en curso se marca con badge, se dibuja sólido hasta el último dato y no se promedia; la prolongación punteada solo indica continuidad.
 - La tendencia heredada usa los 36 meses previos al inicio del sexenio y requiere al menos 3 observaciones. La escala del comparador prioriza los datos observados.
+- Los eventos se dibujan solo dentro de la cobertura de la serie y se listan completos en el periodo.
+- Las tablas anchas viven en contenedores con scroll propio; el documento no se desplaza horizontalmente en móvil.
 - Las cifras preliminares/estimadas se señalan con badges y avisos; el detalle está en la tabla y el drawer.
 - `prefers-reduced-motion` desactiva transiciones; ECharts no anima.
-- No hay ranking ni índice compuesto en M3.
+- No hay ranking ni índice compuesto en M4.

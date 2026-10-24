@@ -206,6 +206,44 @@ export const strings = {
     sourcesBody:
       "Cada gráfica y cada fila del resumen remiten a la fuente primaria. La fecha de corte y el estatus de cada observación están en el tooltip y en la tabla.",
   },
+  metodologia: {
+    eyebrow: "Metodología",
+    title: "Cobertura, fuentes y límites",
+    subtitle:
+      "Esta página reúne la matriz de cobertura indicador × año y las fuentes que alimentan el explorador. Los huecos y quiebres se muestran tal como están en los datos; no se interpolan.",
+    sourcesTitle: "Fuentes utilizadas",
+    sourcesDescription:
+      "Cada indicador conserva su fuente principal y, cuando existe, su fuente alternativa. Las licencias y notas son responsabilidad de la fuente original.",
+    license: "Licencia",
+    notesTitle: "Notas de lectura",
+    noteOfficial:
+      "Todas las series son datos publicados por instituciones oficiales o por organismos internacionales que armonizan información de México. Los fixtures nunca se presentan como datos reales.",
+    noteComparability:
+      "Una celda con dato no implica comparabilidad perfecta: pueden existir cambios de base, cobertura, frecuencia o metodología. Los quiebres declarados se marcan en la matriz y en las gráficas.",
+    noteSources:
+      "SESNSP mide denuncias; INEGI mide defunciones registradas. Son series relacionadas, no intercambiables. Las fuentes alternativas se muestran en paralelo en el explorador.",
+    noteM4:
+      "Para completar los 12 indicadores se usaron series anuales del Banco Mundial en inversión/PIB, Gini, ingresos tributarios y gasto en salud, y el índice de remuneraciones medias reales de INEGI como proxy del salario formal. Estas decisiones están declaradas en la metodología de cada indicador.",
+  },
+  sourceComparison: {
+    title: "Fuentes en paralelo",
+    description:
+      "Las series disputadas se muestran una al lado de la otra. No se empalman: pueden diferir en unidad, frecuencia, cobertura y metodología.",
+    observations: "{count} observaciones",
+    active: "En gráfica",
+    coverage: "Cobertura",
+    vintage: "Corte",
+    noData: "Sin datos",
+    note:
+      "La gráfica y la tabla usan la fuente seleccionada arriba. Esta comparación es informativa y no convierte una serie en la otra.",
+  },
+  events: {
+    title: "Eventos en el periodo",
+    count: "{count} eventos",
+    description:
+      "Los puntos negros de la gráfica marcan eventos históricos. Pasa el cursor sobre uno para ver su descripción y fuente; aquí están todos los del periodo.",
+    source: "Consultar fuente del evento",
+  },
   chart: {
     loading: "Cargando gráfica",
     sectionTitle: "Gráfica de la serie",
@@ -230,6 +268,14 @@ export const strings = {
     yearsWithData: "{withData} de {total} años con dato",
     range: "1994–2026",
     legendLabel: "Leyenda de cobertura",
+    matrixTitle: "Matriz de cobertura por indicador y año",
+    matrixDescription:
+      "Cada celda indica si el indicador tiene datos para ese año con su fuente principal. Los huecos no se rellenan; los quiebres se marcan con una línea roja.",
+    matrixCaption:
+      "Cobertura anual de {indicators} indicadores con datos, de {from} a {to}.",
+    matrixIndicator: "Indicador / fuente",
+    matrixNote:
+      "La matriz usa la fuente principal de cada indicador. Las series disputadas se muestran en paralelo en el explorador; la cobertura de la fuente alternativa puede diferir.",
   },
   table: {
     title: "Tabla de datos",
@@ -360,6 +406,19 @@ export const monthShortLabels = [
   "nov",
   "dic",
 ] as const;
+
+export const eventTypeLabels: Record<string, string> = {
+  economia: "Economía",
+  empleo: "Empleo",
+  social: "Social",
+  seguridad: "Seguridad",
+  fiscal: "Fiscal",
+  instituciones: "Instituciones",
+  energia: "Energía",
+  democracia: "Democracia",
+  salud: "Salud",
+  desastre: "Desastre",
+};
 
 export const statusLabels: Record<DataStatus, string> = {
   revisado: "Revisado",

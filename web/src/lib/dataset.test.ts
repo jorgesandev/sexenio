@@ -11,11 +11,19 @@ import {
 } from "./dataset";
 import { DATA_STATUSES } from "./types";
 
-const M2_INDICATORS = [
-  "homicidio_100k",
+const M4_INDICATORS = [
   "pib_pc_real",
+  "fbkf_pib",
+  "inflacion",
+  "salario_real_imss",
+  "informalidad",
   "pobreza_mult",
+  "gini",
+  "homicidio_100k",
+  "extorsion_100k",
   "deuda_shrfsp_pib",
+  "ingresos_trib_pib",
+  "gasto_salud_pc",
 ];
 
 describe("dataset de la aplicación", () => {
@@ -25,10 +33,10 @@ describe("dataset de la aplicación", () => {
     expect(dataset.provenance.referenceDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  test("mantiene el catálogo completo y cuatro indicadores con datos", () => {
+  test("mantiene el catálogo completo y los doce indicadores con datos", () => {
     expect(dataset.indicators).toHaveLength(12);
     expect(dataset.terms).toHaveLength(6);
-    expect(availableIndicatorIds).toEqual([...M2_INDICATORS].sort());
+    expect(availableIndicatorIds).toEqual([...M4_INDICATORS].sort());
     expect(isIndicatorAvailable(DEFAULT_INDICATOR_ID)).toBe(true);
   });
 
@@ -72,8 +80,8 @@ describe("dataset de la aplicación", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  test("los cuatro indicadores M2 tienen fuente y datos ordenados", () => {
-    for (const indicatorId of M2_INDICATORS) {
+  test("los doce indicadores M4 tienen fuente y datos ordenados", () => {
+    for (const indicatorId of M4_INDICATORS) {
       const sources = availableSourceIds(indicatorId);
       expect(sources.length).toBeGreaterThan(0);
 
@@ -86,6 +94,28 @@ describe("dataset de la aplicación", () => {
         expect(dates).toEqual([...dates].sort());
       }
     }
+  });
+
+  test("M4 expone las series nuevas con su fuente y cadencia", () => {
+    const expected = [
+      ["fbkf_pib", "wb", "annual", "% del PIB"],
+      ["inflacion", "inegi", "monthly", "% anual"],
+      ["salario_real_imss", "inegi", "monthly", "índice base 2018=100"],
+      ["informalidad", "inegi", "monthly", "% de la población ocupada"],
+      ["gini", "wb", "annual", "índice 0-1"],
+      ["extorsion_100k", "sesnsp", "monthly", "por 100 mil habitantes"],
+      ["ingresos_trib_pib", "wb", "annual", "% del PIB"],
+      ["gasto_salud_pc", "wb", "annual", "USD corrientes por habitante"],
+    ] as const;
+
+    for (const [indicatorId, sourceId, frequency, unit] of expected) {
+      const observations = getObservations(indicatorId, sourceId);
+      expect(observations.length).toBeGreaterThan(0);
+      expect(observations[0]?.frequency).toBe(frequency);
+      expect(observations[0]?.unit).toBe(unit);
+    }
+
+    expect(dataset.events.length).toBeGreaterThan(0);
   });
 
   test("homicidios conserva las dos frecuencias de fuente", () => {

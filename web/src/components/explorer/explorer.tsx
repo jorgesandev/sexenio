@@ -6,12 +6,14 @@ import { ChartControls } from "@/components/explorer/chart-controls";
 import { ChartSkeleton } from "@/components/explorer/chart-skeleton";
 import { CoverageStrip } from "@/components/explorer/coverage-strip";
 import { useRegisterCsvExport } from "@/components/explorer/csv-export-context";
+import { EventsList } from "@/components/explorer/events-list";
 import {
   EmptyState,
   IndexErrorState,
   SourceEmptyState,
 } from "@/components/explorer/explorer-states";
 import { ObservationsTable } from "@/components/explorer/observations-table";
+import { SourceComparison } from "@/components/explorer/source-comparison";
 import { SourceDrawer } from "@/components/explorer/source-drawer";
 import { TermRail } from "@/components/explorer/term-rail";
 import { buildViewCsv } from "@/lib/csv";
@@ -269,6 +271,7 @@ export function Explorer() {
                   scale={model.effectiveScale}
                   frequency={model.activeFrequency}
                   summary={chartSummary}
+                  events={model.events}
                 />
               </div>
 
@@ -279,6 +282,15 @@ export function Explorer() {
             </>
           )}
         </section>
+
+        <SourceComparison
+          indicator={model.indicator}
+          sourceChoices={model.sourceChoices}
+          from={state.from}
+          to={state.to}
+        />
+
+        <EventsList events={model.events} />
 
         {model.hasData && !indexError ? (
           <ObservationsTable

@@ -3,7 +3,7 @@
  * Prepara el dataset tipado que consume la aplicación web.
  *
  * Prioridad:
- *   1. data/processed/observations.json (ETL de M2, datos oficiales)
+ *   1. data/processed/observations.json (ETL de M4, datos oficiales)
  *   2. src/data/generated/dataset.ts ya generado (build aislado)
  *   3. data/fixtures/observations.sample.csv (fallback de desarrollo)
  *
@@ -22,11 +22,19 @@ const FIXTURES_PATH = join(DATA_DIR, "fixtures", "observations.sample.csv");
 
 const FORCE_FIXTURES = process.argv.includes("--fixtures");
 
-const M2_INDICATORS = new Set([
-  "homicidio_100k",
+const M4_INDICATORS = new Set([
   "pib_pc_real",
+  "fbkf_pib",
+  "inflacion",
+  "salario_real_imss",
+  "informalidad",
   "pobreza_mult",
+  "gini",
+  "homicidio_100k",
+  "extorsion_100k",
   "deuda_shrfsp_pib",
+  "ingresos_trib_pib",
+  "gasto_salud_pc",
 ]);
 
 const STATUSES = new Set([
@@ -225,9 +233,9 @@ function validate(observations, indicators, sources, kind) {
     }
   }
 
-  for (const indicatorId of M2_INDICATORS) {
+  for (const indicatorId of M4_INDICATORS) {
     if (!observations.some((row) => row.indicatorId === indicatorId)) {
-      fail(`El indicador M2 "${indicatorId}" no tiene observaciones.`);
+      fail(`El indicador M4 "${indicatorId}" no tiene observaciones.`);
     }
   }
 
@@ -319,7 +327,7 @@ function loadFixtures(indicatorsById, sourcesById) {
     const line = index + 2;
     const get = (column) => cells[columnIndex.get(column)] ?? "";
     const indicatorId = get("indicator_id");
-    if (!M2_INDICATORS.has(indicatorId)) return;
+    if (!M4_INDICATORS.has(indicatorId)) return;
 
     rawObservations.push({
       indicator_id: indicatorId,

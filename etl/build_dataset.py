@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Construye el dataset de M2 desde fuentes oficiales.
+"""Construye el dataset de M4 desde fuentes oficiales.
 
 Uso:
     python3 etl/build_dataset.py
@@ -25,6 +25,7 @@ import json
 import math
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -47,8 +48,11 @@ REFRESH = False
 
 INEGI_BASE = "https://www.inegi.org.mx/app/api/indicadores/desarrolladores/jsonxml"
 INEGI_INTERNAL = "https://www.inegi.org.mx/app/api/indicadores/interna_v1_3"
+INEGI_APP_API = f"{INEGI_INTERNAL}/API.svc"
 SESNSP_RESOURCE = "386f17d2-a488-4da2-9c85-99765b5a9cdc"
 SHRFSP_RESOURCE = "6cef78df-9b29-4581-9a0b-e7553baa5cf1"
+WORLD_BANK_BASE = "https://api.worldbank.org/v2/country/MEX/indicator"
+WORLD_BANK_BULK_BASE = "https://api.worldbank.org/v2/en/indicator"
 
 MESES = {
     "Enero": 1,
@@ -65,11 +69,19 @@ MESES = {
     "Diciembre": 12,
 }
 
-M2_INDICATORS = {
-    "homicidio_100k",
+M4_INDICATORS = {
     "pib_pc_real",
+    "fbkf_pib",
+    "inflacion",
+    "salario_real_imss",
+    "informalidad",
     "pobreza_mult",
+    "gini",
+    "homicidio_100k",
+    "extorsion_100k",
     "deuda_shrfsp_pib",
+    "ingresos_trib_pib",
+    "gasto_salud_pc",
 }
 
 STATUS_MAP = {
@@ -198,6 +210,9 @@ def period_to_date(period: str, frequency: str) -> str:
     if "/" in period:
         year_text, part_text = period.split("/", 1)
         year = int(year_text)
+        if frequency == "monthly":
+            month = int(part_text)
+            return f"{year:04d}-{month:02d}-01"
         quarter = int(part_text)
         month = (quarter - 1) * 3 + 1
         return f"{year:04d}-{month:02d}-01"
@@ -340,6 +355,120 @@ def inegi_homicide() -> list[dict[str, Any]]:
     return result
 
 
+def inegi_app_series(
+    series_id: str,
+    cache_name: str,
+    *,
+    start_year: int,
+) -> list[dict[str, Any]]:
+    """Serie mensual de la API interna vigente de INEGI (API.svc)."""
+    url = (
+        f"{INEGI_APP_API}/ValorIndicador/{series_id}/00/null/es/null/null/3/null/"
+        f"0/null/{start_year}/null/1/3/json/{INEGI_TOKEN}"
+    )
+    data = fetch_json(url, cache_name, store_url=False)
+    periods = (data.get("dimension") or {}).get("periods", {}).get("category", {}).get("label", [])
+    values = data.get("value", [])
+    if len(periods) != len(values):
+        raise SourceError(f"Dimensiones inconsistentes en la serie INEGI {series_id}.")
+    return [
+        {
+            "period": str(item["Value"]),
+            "value": float(str(raw).replace(",", "")),
+            "status_code": None,
+            "source_note": "",
+        }
+        for item, raw in zip(periods, values)
+        if raw not in (None, "", "N/E")
+    ]
+
+
+def fetch_world_bank_bulk(url: str, cache_name: str) -> bytes:
+    """Descarga el CSV masivo del Banco Mundial con curl."""
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = RAW_DIR / cache_name
+    if cache_path.exists() and not REFRESH:
+        return cache_path.read_bytes()
+
+    last_error = ""
+    for attempt in range(1, 4):
+        completed = subprocess.run(
+            [
+                "curl",
+                "-LsS",
+                "--http1.1",
+                "--max-time",
+                "90",
+                "-A",
+                "Mozilla/5.0",
+                url,
+            ],
+            capture_output=True,
+            timeout=120,
+        )
+        if completed.returncode == 0 and completed.stdout and not completed.stdout.lstrip().startswith(b"<"):
+            cache_path.write_bytes(completed.stdout)
+            meta = {
+                "cache": cache_name,
+                "bytes": len(completed.stdout),
+                "sha256": sha256(completed.stdout),
+                "fetchedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
+                "url": url,
+            }
+            (RAW_DIR / f"{cache_name}.meta.json").write_text(
+                json.dumps(meta, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            return completed.stdout
+        last_error = completed.stderr.decode("utf-8", "replace")
+        if attempt < 3:
+            time.sleep(1.5 * attempt)
+
+    raise SourceError(f"No se pudo descargar {cache_name}: {last_error}")
+
+
+def world_bank_series(
+    code: str,
+    cache_name: str,
+    *,
+    start_year: int,
+) -> list[dict[str, Any]]:
+    """Serie anual del Banco Mundial para México, desde su CSV masivo."""
+    url = f"{WORLD_BANK_BULK_BASE}/{code}?downloadformat=csv"
+    data = fetch_world_bank_bulk(url, cache_name)
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        csv_names = [name for name in archive.namelist() if name.startswith("API_") and name.endswith(".csv")]
+        if not csv_names:
+            raise SourceError(f"El CSV del Banco Mundial no contiene datos para {code}.")
+        text = archive.read(csv_names[0]).decode("utf-8-sig")
+
+    lines = text.splitlines()
+    header_index = next(
+        (index for index, line in enumerate(lines) if line.startswith('"Country Name"')),
+        None,
+    )
+    if header_index is None:
+        raise SourceError(f"Encabezado inesperado del Banco Mundial para {code}.")
+
+    reader = csv.DictReader(lines[header_index:])
+    row = next((item for item in reader if item.get("Country Code") == "MEX"), None)
+    if not row:
+        raise SourceError(f"El Banco Mundial no devolvió México para {code}.")
+
+    result = []
+    for year_text, raw_value in row.items():
+        if not year_text or not year_text.isdigit() or not raw_value:
+            continue
+        year = int(year_text)
+        if year < start_year:
+            continue
+        result.append({"year": year, "value": float(raw_value)})
+    result.sort(key=lambda item: item["year"])
+    if not result:
+        raise SourceError(f"El Banco Mundial no devolvió valores para {code}.")
+    return result
+
+
 def pib_per_capita(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
     url = (
         f"{INEGI_INTERNAL}/ValorIndicador/736181/00/null/es/null/null/3/null/"
@@ -396,24 +525,32 @@ def pib_per_capita(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return result
 
 
-def sesnsp_homicide(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def sesnsp_crime_rate(
+    population: list[dict[str, Any]],
+    *,
+    subtype: str,
+    indicator_id: str,
+    cache_name: str,
+    note: str,
+    min_year: int,
+) -> list[dict[str, Any]]:
     query = urllib.parse.urlencode(
         {
             "resource_id": SESNSP_RESOURCE,
             "limit": 100000,
             "filters": json.dumps(
-                {"Subtipo de delito": "Homicidio doloso"},
+                {"Subtipo de delito": subtype},
                 ensure_ascii=False,
             ),
         }
     )
     data = fetch_json(
         f"https://datos.gob.mx/api/3/action/datastore_search?{query}",
-        "sesnsp_homicidio_doloso.json",
+        cache_name,
     )
     records = data["result"]["records"]
     if not records:
-        raise SourceError("SESNSP no devolvió registros de homicidio doloso.")
+        raise SourceError(f"SESNSP no devolvió registros de {subtype}.")
 
     months = list(MESES.keys())
     monthly_totals: dict[tuple[int, int], float] = {}
@@ -431,32 +568,58 @@ def sesnsp_homicide(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
     population_by_year = {row["year"]: row for row in population}
     result = []
     for (year, month), count in sorted(monthly_totals.items()):
-        if year < 2015:
+        if year < min_year:
             continue
         population_row = population_by_year.get(year)
         if not population_row or population_row["value"] <= 0:
             raise SourceError(f"Sin población para {year}; no se puede calcular la tasa SESNSP.")
         date = f"{year:04d}-{month:02d}-01"
         value = (count / population_row["value"]) * 100_000
-        status = "preliminar" if year == 2025 else "revisado"
+        status = "preliminar" if year >= 2025 else "revisado"
         result.append(
             observation(
-                "homicidio_100k",
+                indicator_id,
                 date,
                 value,
                 "por 100 mil habitantes",
                 "sesnsp",
                 "https://datos.gob.mx/busca/dataset/incidencia_delictiva",
-                (
-                    "Tasa calculada con víctimas mensuales de homicidio doloso "
-                    "del SESNSP y población a mitad de año de CONAPO. Mide denuncias, "
-                    "no el total de hechos."
-                ),
+                note,
                 "monthly",
                 status,
             )
         )
     return result
+
+
+def sesnsp_homicide(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sesnsp_crime_rate(
+        population,
+        subtype="Homicidio doloso",
+        indicator_id="homicidio_100k",
+        cache_name="sesnsp_homicidio_doloso.json",
+        note=(
+            "Tasa calculada con víctimas mensuales de homicidio doloso "
+            "del SESNSP y población a mitad de año de CONAPO. Mide denuncias, "
+            "no el total de hechos."
+        ),
+        min_year=2015,
+    )
+
+
+def sesnsp_extortion(population: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return sesnsp_crime_rate(
+        population,
+        subtype="Extorsión",
+        indicator_id="extorsion_100k",
+        cache_name="sesnsp_extorsion.json",
+        note=(
+            "Denuncias mensuales de extorsión del SESNSP por cada 100 mil "
+            "habitantes, usando población a mitad de año de CONAPO. Mide "
+            "denuncias, no la incidencia real; la cifra negra es alta."
+        ),
+        min_year=2015,
+    )
 
 
 def extract_coneval_zip(data: bytes, sheet_name: str, years: list[int], value_start: int) -> dict[int, float]:
@@ -654,6 +817,158 @@ def debt_shrfsp_pib(nominal_gdp: dict[tuple[int, int], float]) -> list[dict[str,
     return result
 
 
+def inflation() -> list[dict[str, Any]]:
+    raw = inegi_app_series(
+        "910406",
+        "inegi_inflacion_910406.json",
+        start_year=2008,
+    )
+    result = []
+    for item in raw:
+        date = period_to_date(item["period"], "monthly")
+        result.append(
+            observation(
+                "inflacion",
+                date,
+                item["value"],
+                "% anual",
+                "inegi",
+                "https://www.inegi.org.mx/temas/inpc/",
+                "Tasa de inflación anual del INPC, base 2018=100. Serie mensual vigente del INEGI.",
+                "monthly",
+                "revisado",
+            )
+        )
+    return result
+
+
+def informality() -> list[dict[str, Any]]:
+    raw = inegi_app_series(
+        "444619",
+        "inegi_informalidad_444619.json",
+        start_year=2005,
+    )
+    result = []
+    for item in raw:
+        date = period_to_date(item["period"], "monthly")
+        result.append(
+            observation(
+                "informalidad",
+                date,
+                item["value"],
+                "% de la población ocupada",
+                "inegi",
+                "https://www.inegi.org.mx/programas/enoe/15ymas/",
+                "Tasa de informalidad laboral TIL1 de la ENOE. Serie mensual; comparable desde 2005.",
+                "monthly",
+                "revisado",
+            )
+        )
+    return result
+
+
+def real_remuneration() -> list[dict[str, Any]]:
+    raw = inegi_app_series(
+        "702102",
+        "inegi_remuneraciones_702102.json",
+        start_year=2008,
+    )
+    result = []
+    for item in raw:
+        date = period_to_date(item["period"], "monthly")
+        result.append(
+            observation(
+                "salario_real_imss",
+                date,
+                item["value"],
+                "índice base 2018=100",
+                "inegi",
+                "https://www.inegi.org.mx/temas/remuneraciones/",
+                (
+                    "Índice global de remuneraciones medias reales por persona "
+                    "ocupada. Es un proxy de ingreso laboral formal; no es el "
+                    "salario base de cotización del IMSS."
+                ),
+                "monthly",
+                "revisado",
+            )
+        )
+    return result
+
+
+def world_bank_indicators() -> list[dict[str, Any]]:
+    definitions = [
+        {
+            "indicator_id": "fbkf_pib",
+            "code": "NE.GDI.FTOT.ZS",
+            "unit": "% del PIB",
+            "start_year": 1990,
+            "transform": lambda value: value,
+            "note": (
+                "Formación bruta de capital fijo como porcentaje del PIB. "
+                "Serie anual del Banco Mundial; la serie trimestral de INEGI "
+                "no está disponible en la API vigente."
+            ),
+        },
+        {
+            "indicator_id": "gini",
+            "code": "SI.POV.GINI",
+            "unit": "índice 0-1",
+            "start_year": 1984,
+            "transform": lambda value: value / 100,
+            "note": (
+                "Coeficiente de Gini del Banco Mundial, calculado a partir de "
+                "encuestas de hogares. Se transforma de 0-100 a 0-1."
+            ),
+        },
+        {
+            "indicator_id": "ingresos_trib_pib",
+            "code": "GC.TAX.TOTL.GD.ZS",
+            "unit": "% del PIB",
+            "start_year": 1990,
+            "transform": lambda value: value,
+            "note": (
+                "Ingresos tributarios como porcentaje del PIB. Serie anual "
+                "del Banco Mundial."
+            ),
+        },
+        {
+            "indicator_id": "gasto_salud_pc",
+            "code": "SH.XPD.CHEX.PC.CD",
+            "unit": "USD corrientes por habitante",
+            "start_year": 2000,
+            "transform": lambda value: value,
+            "note": (
+                "Gasto corriente en salud per cápita del Banco Mundial, en "
+                "USD corrientes. No está deflactado a pesos mexicanos."
+            ),
+        },
+    ]
+
+    result = []
+    for definition in definitions:
+        rows = world_bank_series(
+            definition["code"],
+            f"world_bank_{definition['code'].lower().replace('.', '_')}.zip",
+            start_year=definition["start_year"],
+        )
+        for row in rows:
+            result.append(
+                observation(
+                    definition["indicator_id"],
+                    f"{row['year']:04d}-01-01",
+                    definition["transform"](row["value"]),
+                    definition["unit"],
+                    "wb",
+                    f"https://data.worldbank.org/indicator/{definition['code']}?locations=MX",
+                    definition["note"],
+                    "annual",
+                    "revisado",
+                )
+            )
+    return result
+
+
 def validate(
     observations: list[dict[str, Any]],
     indicators: list[dict[str, Any]],
@@ -691,7 +1006,7 @@ def validate(
         seen.add(key)
 
     for indicator in indicators:
-        if indicator["id"] not in M2_INDICATORS:
+        if indicator["id"] not in M4_INDICATORS:
             continue
         rows = [row for row in observations if row["indicator_id"] == indicator["id"]]
         if not rows:
@@ -797,6 +1112,9 @@ def write_outputs(observations: list[dict[str, Any]], indicators: list[dict[str,
             "SESNSP mide denuncias; INEGI mide defunciones registradas. No son intercambiables.",
             "La pobreza 2008-2020 es CONEVAL; 2022-2024 fue publicada por INEGI con quiebre metodológico en 2022.",
             "El PIB nominal usado como denominador de SHRFSP proviene del tabulado manual de INEGI.",
+            "Inflación, informalidad y remuneraciones usan series mensuales vigentes de INEGI.",
+            "Inversión/GDP, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; no son series trimestrales de INEGI/SHCP.",
+            "Remuneraciones medias reales es un proxy de ingreso laboral formal; no es el salario base de cotización del IMSS.",
         ],
     }
     (PROCESSED_DIR / "manifest.json").write_text(
@@ -817,7 +1135,7 @@ def write_outputs(observations: list[dict[str, Any]], indicators: list[dict[str,
 def main() -> None:
     global VINTAGE, REFRESH
 
-    parser = argparse.ArgumentParser(description="Construye el dataset oficial de M2.")
+    parser = argparse.ArgumentParser(description="Construye el dataset oficial de M4.")
     parser.add_argument(
         "--refresh",
         action="store_true",
@@ -847,6 +1165,14 @@ def main() -> None:
     log("Cargando homicidios SESNSP…")
     homicides_sesnsp = sesnsp_homicide(population)
 
+    log("Cargando extorsión SESNSP…")
+    extortion = sesnsp_extortion(population)
+
+    log("Cargando inflación, informalidad y remuneraciones…")
+    inflation_rows = inflation()
+    informality_rows = informality()
+    remuneration_rows = real_remuneration()
+
     log("Cargando pobreza multidimensional…")
     poverty_rows = poverty()
 
@@ -854,7 +1180,21 @@ def main() -> None:
     nominal_gdp = load_nominal_gdp()
     debt_rows = debt_shrfsp_pib(nominal_gdp)
 
-    observations = pib + homicides_inegi + homicides_sesnsp + poverty_rows + debt_rows
+    log("Cargando series del Banco Mundial…")
+    world_bank_rows = world_bank_indicators()
+
+    observations = (
+        pib
+        + homicides_inegi
+        + homicides_sesnsp
+        + extortion
+        + inflation_rows
+        + informality_rows
+        + remuneration_rows
+        + poverty_rows
+        + debt_rows
+        + world_bank_rows
+    )
     validate(observations, indicators, sources)
     write_outputs(observations, indicators)
 

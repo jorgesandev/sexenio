@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 INDICATORS_PATH = ROOT / "data" / "metadata" / "indicators.json"
 SOURCES_PATH = ROOT / "data" / "metadata" / "sources.json"
 OUT_PATH = ROOT / "data" / "fixtures" / "observations.sample.csv"
-VINTAGE = "2026-10-23"
+VINTAGE = "2026-10-24"
 END = date(2026, 9, 1)
 
 # start, base, tendencia anual, amplitud, decimales, mínimo, máximo, periodo de onda (meses)
@@ -33,7 +33,7 @@ PARAMS: dict[str, dict] = {
     "informalidad": {"start": "2005-01-01", "base": 58.0, "trend": -0.25, "amp": 1.5, "decimals": 1, "clamp": (40, 65), "period": 40},
     "pobreza_mult": {"start": "2008-01-01", "base": 44.0, "trend": -0.6, "amp": 2.5, "decimals": 1, "clamp": (20, 55), "period": 24},
     "gini": {"start": "2008-01-01", "base": 0.48, "trend": -0.002, "amp": 0.012, "decimals": 3, "clamp": (0.38, 0.55), "period": 24},
-    "homicidio_100k": {"start": "1994-12-01", "base": 17.0, "trend": 0.7, "amp": 5.0, "decimals": 1, "clamp": (5, 35), "period": 42},
+    "homicidio_100k": {"start": "1995-01-01", "base": 17.0, "trend": 0.7, "amp": 5.0, "decimals": 1, "clamp": (5, 35), "period": 42},
     "extorsion_100k": {"start": "2015-01-01", "base": 4.5, "trend": 0.15, "amp": 1.2, "decimals": 1, "clamp": (1, 12), "period": 30},
     "deuda_shrfsp_pib": {"start": "1994-12-01", "base": 38.0, "trend": 0.6, "amp": 2.5, "decimals": 1, "clamp": (20, 62), "period": 56},
     "ingresos_trib_pib": {"start": "1994-01-01", "base": 11.0, "trend": 0.12, "amp": 0.4, "decimals": 1, "clamp": (8, 16), "period": 12},
@@ -106,7 +106,11 @@ def main() -> None:
     rows.sort(key=lambda r: (r["indicator_id"], r["date"]))
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUT_PATH.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(
+            fh,
+            fieldnames=list(rows[0].keys()),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(rows)
 

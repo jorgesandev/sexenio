@@ -6,7 +6,9 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-**M3 completado.** El explorador usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. Incluye exportación CSV. El comparador alinea sexenios por mes de gestión o calendario, superpone hasta cuatro series, calcula tendencia heredada, muestra small multiples y resume cada sexenio. El siguiente hito es **M4**: cobertura completa.
+**M4 completado.** El explorador y el comparador cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. Incluye series disputadas en paralelo, eventos históricos, matriz de cobertura, exportación CSV, alineación por sexenio o calendario, tendencia heredada y small multiples. El siguiente hito es **M5**: constructor de índice.
+
+Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial para inversión/PIB, Gini, ingresos tributarios y gasto en salud, y el índice de remuneraciones medias reales de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI y en la metodología.
 
 ## Documentación
 
@@ -47,7 +49,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 │   ├── raw/               # descargas originales (no versionadas)
 │   └── processed/         # datasets normalizados (no versionados)
 ├── etl/                   # ingestión y generación de fixtures
-└── web/                   # aplicación Next.js (M1)
+└── web/                   # aplicación Next.js (M4)
 ```
 
 ## Inicio rápido
@@ -76,7 +78,7 @@ Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conecta
 
 ## Demo pública y despliegue
 
-Explorador y comparador M3: <https://sexenio-demo.jorgesandev.workers.dev/explorar/> y <https://sexenio-demo.jorgesandev.workers.dev/comparar/>.
+Explorador y comparador M4: <https://sexenio-demo.jorgesandev.workers.dev/explorar/> y <https://sexenio-demo.jorgesandev.workers.dev/comparar/>.
 Publica el dataset oficial generado; este despliegue no implica el cierre de M6.
 
 El demo se publica mediante Cloudflare Workers Static Assets con `web/wrangler.jsonc`.

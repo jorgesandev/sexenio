@@ -38,6 +38,23 @@
 | [México ¿Cómo Vamos?](https://mexicocomovamos.mx/) | Semáforos y análisis | Interpretación, no dato primario |
 | [IMCO](https://imco.org.mx/) / [CIEP](https://ciep.mx/) | Competencia, energía, finanzas públicas | Análisis |
 
+## Fuentes usadas en M4
+
+| Indicador | Fuente efectiva | Motivo |
+|---|---|---|
+| Inversión fija / PIB | Banco Mundial, `NE.GDI.FTOT.ZS` | La serie trimestral de INEGI no está disponible en la API vigente. |
+| Inflación anual | INEGI, serie mensual 910406 | Serie vigente del INPC; las claves BISE anteriores están congeladas. |
+| Remuneraciones reales | INEGI, serie mensual 702102 | Proxy de ingreso formal; no es el salario base de cotización del IMSS. |
+| Informalidad | INEGI ENOE, serie mensual 444619 | Tasa TIL1 mensual. |
+| Gini | Banco Mundial, `SI.POV.GINI` | Serie anual armonizada; se transforma a 0–1. |
+| Extorsión | SESNSP | Denuncias mensuales por 100 mil habitantes. |
+| Ingresos tributarios / PIB | Banco Mundial, `GC.TAX.TOTL.GD.ZS` | Serie anual comparable. |
+| Gasto en salud per cápita | Banco Mundial, `SH.XPD.CHEX.PC.CD` | USD corrientes; no está deflactado a pesos. |
+
+Estas sustituciones se muestran en la página de metodología y en la nota de cada
+observación. No se presentan como si fueran las series originales de IMSS,
+SHCP o Secretaría de Salud.
+
 ## Reglas de ingestión
 
 1. Guardar el archivo original con hash y fecha de descarga.

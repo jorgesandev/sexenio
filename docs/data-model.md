@@ -106,17 +106,19 @@ homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,ine
 | ID | Nombre | Frecuencia | Dirección | Fuente | Desde |
 |---|---|---|---|---|---|
 | `pib_pc_real` | PIB per cápita real | trimestral | up | INEGI | 1993 |
-| `fbkf_pib` | Inversión fija bruta / PIB | trimestral | up | INEGI | 1993 |
-| `inflacion` | Inflación anual | mensual | down | INEGI/Banxico | 1969 |
-| `salario_real_imss` | Salario real IMSS | mensual | up | IMSS | 1997 |
-| `informalidad` | Tasa de informalidad laboral | trimestral | down | INEGI (ENOE) | 2005 |
+| `fbkf_pib` | Inversión fija bruta / PIB | anual | up | Banco Mundial | 1990 |
+| `inflacion` | Inflación anual | mensual | down | INEGI (INPC) | 2008 |
+| `salario_real_imss` | Remuneraciones medias reales | mensual | up | INEGI | 2008 |
+| `informalidad` | Tasa de informalidad laboral | mensual | down | INEGI (ENOE) | 2005 |
 | `pobreza_mult` | Pobreza multidimensional | bienal | down | CONEVAL/INEGI | 2008 |
-| `gini` | Coeficiente de Gini | bienal | down | CONEVAL/INEGI | 2008 |
+| `gini` | Coeficiente de Gini | anual | down | Banco Mundial | 1984 |
 | `homicidio_100k` | Homicidio doloso por 100 mil | anual / mensual | down | INEGI/SESNSP | 1990 |
 | `extorsion_100k` | Extorsión por 100 mil | mensual | down | SESNSP | 2015 |
 | `deuda_shrfsp_pib` | Deuda amplia / PIB | trimestral | down | SHCP | 2000 |
-| `ingresos_trib_pib` | Ingresos tributarios / PIB | anual | up | SHCP | 1990 |
-| `gasto_salud_pc` | Gasto en salud per cápita real | anual | up | Salud/SHCP | 2000 |
+| `ingresos_trib_pib` | Ingresos tributarios / PIB | anual | up | Banco Mundial | 1990 |
+| `gasto_salud_pc` | Gasto en salud per cápita | anual | up | Banco Mundial | 2000 |
+
+**M4:** las series anuales del Banco Mundial y el índice de remuneraciones de INEGI sustituyen series no disponibles en APIs abiertas; ver `docs/fuentes.md`.
 
 ## Reglas de transformación
 
@@ -155,7 +157,7 @@ homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,ine
 - La UI debe mostrar un banner mientras haya fixtures en pantalla.
 - Nunca se despliegan a producción.
 
-## Datos oficiales (M2)
+## Datos oficiales (M4)
 
 `etl/build_dataset.py` genera `data/processed/observations.json` y
 `data/processed/manifest.json` (ignorados por Git). La web empaqueta una copia
@@ -165,10 +167,18 @@ builds aislados.
 | Indicador | Fuente | Frecuencia | Transformación |
 |---|---|---|---|
 | `pib_pc_real` | INEGI PIBT base 2018 + CONAPO | trimestral | PIB desestacionalizado / población a mitad de año |
+| `fbkf_pib` | Banco Mundial `NE.GDI.FTOT.ZS` | anual | porcentaje del PIB |
+| `inflacion` | INEGI INPC 910406 | mensual | variación anual del INPC |
+| `salario_real_imss` | INEGI 702102 | mensual | índice de remuneraciones medias reales; proxy |
+| `informalidad` | INEGI ENOE 444619 | mensual | tasa TIL1 |
 | `homicidio_100k` | INEGI (defunciones) | anual | tasa publicada por INEGI |
 | `homicidio_100k` | SESNSP (víctimas) | mensual | víctimas de homicidio doloso / población × 100 mil |
+| `extorsion_100k` | SESNSP | mensual | denuncias / población × 100 mil |
 | `pobreza_mult` | CONEVAL 2008-2020 + INEGI 2022-2024 | bienal | porcentaje nacional; quiebre 2022 |
+| `gini` | Banco Mundial `SI.POV.GINI` | anual | coeficiente 0–1 |
 | `deuda_shrfsp_pib` | SHCP SHRFSP + INEGI PIB nominal | trimestral | SHRFSP / PIB nominal × 100 |
+| `ingresos_trib_pib` | Banco Mundial `GC.TAX.TOTL.GD.ZS` | anual | porcentaje del PIB |
+| `gasto_salud_pc` | Banco Mundial `SH.XPD.CHEX.PC.CD` | anual | USD corrientes por habitante |
 
 Reglas específicas:
 
