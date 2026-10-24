@@ -15,9 +15,10 @@ import {
 import type {
   ChartPoint,
 } from "@/lib/series";
-import { strings, statusLabels } from "@/lib/strings";
+import { frequencyLabels, strings, statusLabels } from "@/lib/strings";
 import { termAtDate, termsInRange } from "@/lib/terms";
 import type {
+  Frequency,
   Indicator,
   Observation,
   Source,
@@ -43,6 +44,7 @@ export interface ChartOptionInput {
   to: string;
   view: ViewMode;
   scale: ScaleMode;
+  frequency: Frequency;
   fontFamily: string;
 }
 
@@ -129,6 +131,7 @@ function buildTooltipFormatter(input: ChartOptionInput) {
       : "";
 
     const statusLabel = statusLabels[observation.status] ?? observation.status;
+    const frequencyLabel = frequencyLabels[input.frequency];
 
     return [
       `<div style="min-width:178px;max-width:260px;">`,
@@ -136,7 +139,7 @@ function buildTooltipFormatter(input: ChartOptionInput) {
       `<div style="opacity:.72;margin-bottom:4px;">${dateLabel}</div>`,
       `<div style="font-size:15px;font-weight:600;line-height:1.3;">${displayed} <span style="font-size:11px;font-weight:400;opacity:.78;">${unitText}</span></div>`,
       termLine,
-      `<div style="margin-top:6px;opacity:.72;font-size:11px;">${escapeHtml(input.source.name)} · ${escapeHtml(statusLabel)} · ${escapeHtml(strings.drawer.lastVintage)} ${escapeHtml(observation.vintage)}</div>`,
+      `<div style="margin-top:6px;opacity:.72;font-size:11px;">${escapeHtml(input.source.name)} · ${escapeHtml(frequencyLabel)} · ${escapeHtml(statusLabel)} · ${escapeHtml(strings.drawer.lastVintage)} ${escapeHtml(observation.vintage)}</div>`,
       `</div>`,
     ].join("");
   };

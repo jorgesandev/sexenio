@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useCsvExport } from "@/components/explorer/csv-export-context";
 import { DataStatusBadge } from "@/components/ui/data-status-badge";
 import {
   formatFullDate,
@@ -93,6 +94,7 @@ export function ObservationsTable({
     key: "date",
     direction: "asc",
   });
+  const { payload, download } = useCsvExport();
 
   const rows = useMemo<Row[]>(() => {
     const observationByDate = new Map(
@@ -162,6 +164,20 @@ export function ObservationsTable({
         <p className="text-[11px] leading-4 text-muted tnum">
           {fill(strings.table.rows, { count: sortedRows.length })}
         </p>
+      </div>
+
+      <div className="px-4 pb-2 pt-1 md:hidden">
+        <button
+          type="button"
+          className="btn w-full"
+          disabled={!payload}
+          onClick={download}
+          aria-label={
+            payload ? strings.header.exportReady : strings.header.exportDisabled
+          }
+        >
+          {strings.header.export}
+        </button>
       </div>
 
       <p

@@ -12,7 +12,7 @@
       "sourceId": "inegi",
       "coverageStart": "1993-01",
       "description": "Producto interno bruto real dividido entre la población del periodo.",
-      "methodologyNote": "Serie desestacionalizada o original, según disponibilidad; año base declarado en la ficha.",
+      "methodologyNote": "PIB trimestral desestacionalizado, base 2018, dividido entre la población a mitad de año de CONAPO. Los años de proyección usan población estimada.",
       "breaks": []
     },
     {
@@ -82,7 +82,7 @@
       "sourceId": "coneval",
       "coverageStart": "2008-01",
       "description": "Población con al menos una carencia social y ingreso inferior a la línea de bienestar.",
-      "methodologyNote": "Metodología CONEVAL; revisar quiebre de 2022 y la transición de funciones a INEGI.",
+      "methodologyNote": "CONEVAL 2008-2020; INEGI publicó 2022-2024. Quiebre metodológico en 2022: no empalmar ni comparar promedios entre segmentos.",
       "breaks": [
         {
           "date": "2022-01-01",
@@ -110,13 +110,13 @@
       "shortName": "Homicidios",
       "dimension": "seguridad",
       "unit": "por 100 mil habitantes",
-      "frequency": "monthly",
+      "frequency": "annual",
       "direction": "down",
       "sourceId": "inegi",
       "alternateSourceId": "sesnsp",
       "coverageStart": "1990-01",
       "description": "Muertes por agresión intencional por cada 100 mil habitantes.",
-      "methodologyNote": "INEGI usa certificados de defunción; SESNSP usa denuncias. No son intercambiables.",
+      "methodologyNote": "INEGI usa certificados de defunción y publica una tasa anual; SESNSP publica víctimas mensuales de denuncias. No son intercambiables.",
       "breaks": []
     },
     {
@@ -142,9 +142,9 @@
       "frequency": "quarterly",
       "direction": "down",
       "sourceId": "shcp",
-      "coverageStart": "1994-01",
+      "coverageStart": "2000-10",
       "description": "Saldo histórico de los requerimientos financieros del sector público como proporción del PIB.",
-      "methodologyNote": "Medida amplia de deuda; no usar deuda externa como sustituto.",
+      "methodologyNote": "SHRFSP total de SHCP dividido entre el PIB nominal trimestral de INEGI. Usa la serie de deuda amplia; no usar deuda externa como sustituto.",
       "breaks": []
     },
     {

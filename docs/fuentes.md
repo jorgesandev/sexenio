@@ -6,7 +6,8 @@
 |---|---|---|---|
 | [INEGI](https://www.inegi.org.mx/) | PIB, ENOE, ENIGH, INPC, población, defunciones, ENVIPE, ENSU | [API BISE](https://www.inegi.org.mx/servicios/api_indicadores.html) con token | Series largas; revisar cambios de base y codificación |
 | [Banxico](https://www.banxico.org.mx/) | Tipo de cambio, tasas, reservas, remesas, expectativas | [API SIE](https://www.banxico.org.mx/SieAPIRest/service/v1/) con token | Documentación estable |
-| [SHCP](https://www.gob.mx/shcp) | Finanzas públicas, deuda (SHRFSP), déficit, presupuesto | Datos abiertos y PDFs | Requiere scraping y validación |
+| [SHCP](https://www.gob.mx/shcp) | Finanzas públicas, deuda (SHRFSP), déficit, presupuesto | Datos abiertos y PDFs | SHRFSP disponible vía datos.gob.mx; validar cortes |
+| [CONAPO](https://www.gob.mx/conapo) | Población a mitad de año y proyecciones | CSV | Denominador de tasas y per cápita; marcar años estimados |
 | [SESNSP](https://www.gob.mx/sesnsp/acciones-y-programas/datos-abiertos-de-incidencia-delictiva) | Incidencia delictiva municipal | CSV/XLSX mensual | Denuncias, no hechos; cifra negra |
 | [CONEVAL](https://www.coneval.org.mx/) | Pobreza multidimensional, Gini, ingreso | CSV/Excel | Funciones absorbidas por INEGI en 2025; verificar serie vigente |
 | [IMSS](https://www.imss.gob.mx/) | Puestos de trabajo, salario base de cotización | Datos abiertos | Solo sector formal |

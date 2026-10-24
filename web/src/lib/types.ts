@@ -99,10 +99,12 @@ export interface Observation {
   sourceId: string;
   sourceUrl: string;
   note: string;
+  /** Cadencia de la fuente; puede diferir entre fuentes del mismo indicador. */
+  frequency: Frequency;
 }
 
 export interface DatasetProvenance {
-  kind: "fixture";
+  kind: "fixture" | "official";
   vintage: string;
   referenceDate: string;
   generatedFrom: string;

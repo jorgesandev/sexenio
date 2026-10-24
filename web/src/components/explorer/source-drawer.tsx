@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { DataStatusBadge } from "@/components/ui/data-status-badge";
+import { dataset } from "@/lib/dataset";
 import type { ExplorerModel } from "@/lib/explorer-model";
 import { formatMonthLabel } from "@/lib/format";
 import {
@@ -92,7 +93,7 @@ export function SourceDrawer({ open, onOpenChange, model }: SourceDrawerProps) {
           <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[12px] leading-5">
             <dt className="text-muted">{strings.drawer.frequency}</dt>
             <dd className="text-ink">
-              {frequencyLabels[indicator.frequency]}
+              {frequencyLabels[model.activeFrequency]}
             </dd>
             <dt className="text-muted">{strings.drawer.direction}</dt>
             <dd className="text-ink">
@@ -156,6 +157,21 @@ export function SourceDrawer({ open, onOpenChange, model }: SourceDrawerProps) {
             <dd className="text-ink">{activeSource.license}</dd>
             <dt className="text-muted">{strings.drawer.lastVintage}</dt>
             <dd className="text-ink tnum">{model.lastVintage ?? "—"}</dd>
+            {model.latestObservation?.sourceUrl ? (
+              <>
+                <dt className="text-muted">{strings.drawer.dataUrl}</dt>
+                <dd className="min-w-0">
+                  <a
+                    href={model.latestObservation.sourceUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="break-all text-accent underline decoration-rule underline-offset-4 hover:decoration-accent"
+                  >
+                    {model.latestObservation.sourceUrl}
+                  </a>
+                </dd>
+              </>
+            ) : null}
           </dl>
           {activeSource.notes ? (
             <p className="mt-2 text-[11px] leading-5 text-muted">
@@ -183,9 +199,9 @@ export function SourceDrawer({ open, onOpenChange, model }: SourceDrawerProps) {
                   </p>
                   <p className="text-[11px] leading-5 text-muted">
                     {choice.hasData
-                      ? fill(strings.drawer.alternateCount, {
+                      ? `${fill(strings.drawer.alternateCount, {
                           count: choice.count,
-                        })
+                        })} · ${frequencyLabels[choice.frequency]}`
                       : strings.drawer.notAvailable}
                   </p>
                   <a
@@ -218,7 +234,7 @@ export function SourceDrawer({ open, onOpenChange, model }: SourceDrawerProps) {
 
         <p className="mt-6 border-t border-rule pt-4 text-[10px] leading-4 text-muted">
           {fill(strings.fixture.origin, {
-            origin: "data/fixtures/observations.sample.csv",
+            origin: dataset.provenance.generatedFrom,
           })}
           {" · "}
           {fill(strings.fixture.vintage, {

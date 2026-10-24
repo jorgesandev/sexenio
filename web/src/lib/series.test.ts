@@ -21,6 +21,7 @@ function observation(date: string, value: number): Observation {
     sourceId: "inegi",
     sourceUrl: "https://example.org",
     note: "DATO SINTÉTICO — solo desarrollo",
+    frequency: "monthly",
   };
 }
 

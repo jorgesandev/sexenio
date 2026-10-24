@@ -2,6 +2,8 @@ import { dataset } from "@/lib/dataset";
 import { fill, strings } from "@/lib/strings";
 
 export function FixtureBanner() {
+  if (dataset.provenance.kind !== "fixture") return null;
+
   return (
     <aside
       aria-label={strings.fixture.title}

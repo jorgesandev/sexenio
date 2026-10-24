@@ -1,12 +1,13 @@
 #!/usr/bin/env bun
 /**
- * Sincroniza los metadatos y los fixtures del repositorio con la aplicación.
+ * Prepara el dataset tipado que consume la aplicación web.
  *
- * No es el ETL de M2: solo copia y valida los datos sintéticos que ya existen
- * en `data/` para que la UI pueda construirse antes de tener tokens.
+ * Prioridad:
+ *   1. data/processed/observations.json (ETL de M2, datos oficiales)
+ *   2. src/data/generated/dataset.ts ya generado (build aislado)
+ *   3. data/fixtures/observations.sample.csv (fallback de desarrollo)
  *
- * Genera `src/data/generated/dataset.ts`. El archivo resultante se versiona
- * para que `web/` pueda compilarse de forma aislada (Cloudflare Pages).
+ * `--fixtures` fuerza el fallback sintético.
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -16,13 +17,31 @@ const WEB_ROOT = resolve(import.meta.dir, "..");
 const REPO_ROOT = resolve(WEB_ROOT, "..");
 const DATA_DIR = join(REPO_ROOT, "data");
 const OUTPUT_PATH = join(WEB_ROOT, "src", "data", "generated", "dataset.ts");
+const PROCESSED_PATH = join(DATA_DIR, "processed", "observations.json");
+const FIXTURES_PATH = join(DATA_DIR, "fixtures", "observations.sample.csv");
 
-/** Indicadores que tienen fixtures en M1. */
-const M1_INDICATORS = new Set([
+const FORCE_FIXTURES = process.argv.includes("--fixtures");
+
+const M2_INDICATORS = new Set([
   "homicidio_100k",
   "pib_pc_real",
   "pobreza_mult",
   "deuda_shrfsp_pib",
+]);
+
+const STATUSES = new Set([
+  "preliminar",
+  "revisado",
+  "estimado",
+  "disputado",
+  "fixture",
+]);
+
+const FREQUENCIES = new Set([
+  "monthly",
+  "quarterly",
+  "annual",
+  "biennial",
 ]);
 
 const STEP_MONTHS = {
@@ -34,6 +53,10 @@ const STEP_MONTHS = {
 
 function fail(message) {
   throw new Error(`[sync-data] ${message}`);
+}
+
+function log(message) {
+  console.log(`[sync-data] ${message}`);
 }
 
 function readJson(fileName) {
@@ -78,9 +101,7 @@ function parseCsv(text) {
     }
   }
 
-  if (inQuotes) {
-    fail("El CSV termina dentro de un campo entre comillas.");
-  }
+  if (inQuotes) fail("El CSV termina dentro de un campo entre comillas.");
 
   if (field !== "" || row.length > 0) {
     row.push(field);
@@ -90,8 +111,186 @@ function parseCsv(text) {
   return rows.filter((cells) => cells.some((cell) => cell.trim() !== ""));
 }
 
-function parseObservations(csvText, indicatorsById, sourcesById) {
-  const [header, ...rows] = parseCsv(csvText);
+function monthIndex(date) {
+  return Number(date.slice(0, 4)) * 12 + Number(date.slice(5, 7)) - 1;
+}
+
+function gcd(a, b) {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y !== 0) {
+    [x, y] = [y, x % y];
+  }
+  return x;
+}
+
+function inferFrequency(rows) {
+  const dates = [...new Set(rows.map((row) => row.date))].sort();
+  if (dates.length < 2) return null;
+
+  let step = 0;
+  for (let index = 1; index < dates.length; index += 1) {
+    const difference = monthIndex(dates[index]) - monthIndex(dates[index - 1]);
+    if (difference > 0) step = step === 0 ? difference : gcd(step, difference);
+  }
+
+  return (
+    Object.entries(STEP_MONTHS).find(([, months]) => months === step)?.[0] ??
+    null
+  );
+}
+
+function normalizeObservation(row, indicatorsById, sourcesById, kind) {
+  const indicatorId = row.indicator_id ?? row.indicatorId;
+  const indicator = indicatorsById.get(indicatorId);
+  if (!indicator) {
+    fail(`Indicador desconocido: ${indicatorId}`);
+  }
+
+  const sourceId = row.source_id ?? row.sourceId;
+  if (!sourcesById.has(sourceId)) {
+    fail(`Fuente desconocida: ${sourceId}`);
+  }
+
+  const status = row.status;
+  if (!STATUSES.has(status)) {
+    fail(`Estatus inválido en ${indicatorId}: ${status}`);
+  }
+  if (kind === "fixture" && status !== "fixture") {
+    fail(`El dataset de fixtures debe usar status="fixture" (${indicatorId}).`);
+  }
+
+  const frequency = row.frequency ?? indicator.frequency;
+  if (!FREQUENCIES.has(frequency)) {
+    fail(`Frecuencia inválida en ${indicatorId}: ${frequency}`);
+  }
+
+  return {
+    indicatorId,
+    date: row.date,
+    value: Number(row.value),
+    unit: row.unit,
+    geography: row.geography,
+    status,
+    vintage: row.vintage,
+    sourceId,
+    sourceUrl: row.source_url ?? row.sourceUrl ?? "",
+    note: row.note ?? "",
+    frequency,
+  };
+}
+
+function validate(observations, indicators, sources, kind) {
+  const indicatorsById = new Map(indicators.map((item) => [item.id, item]));
+  const sourcesById = new Map(sources.map((item) => [item.id, item]));
+  const seen = new Set();
+
+  for (const row of observations) {
+    const indicator = indicatorsById.get(row.indicatorId);
+    if (!indicator) fail(`Indicador desconocido: ${row.indicatorId}`);
+    if (!sourcesById.has(row.sourceId)) {
+      fail(`Fuente desconocida: ${row.sourceId}`);
+    }
+    if (row.unit !== indicator.unit) {
+      fail(
+        `Unidad inconsistente para ${row.indicatorId}: "${row.unit}" ≠ "${indicator.unit}".`,
+      );
+    }
+    if (row.geography !== "MX") {
+      fail(`Geografía no soportada: ${row.geography}`);
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.date) || !row.date.endsWith("-01")) {
+      fail(`Fecha inválida o no alineada al primer día del periodo: ${row.date}`);
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.vintage)) {
+      fail(`Vintage inválido: ${row.vintage}`);
+    }
+    if (!Number.isFinite(row.value)) {
+      fail(`Valor no numérico en ${row.indicatorId}/${row.date}.`);
+    }
+    if (kind === "fixture" && !row.note.trim()) {
+      fail(`Una observación fixture requiere note (${row.indicatorId}/${row.date}).`);
+    }
+
+    const key = `${row.indicatorId}|${row.date}|${row.sourceId}|${row.vintage}`;
+    if (seen.has(key)) fail(`Observación duplicada: ${key}`);
+    seen.add(key);
+
+    const month = Number(row.date.slice(5, 7));
+    if (row.frequency === "annual" && month !== 1) {
+      fail(`La fecha ${row.date} no corresponde a una serie anual.`);
+    }
+    if (row.frequency === "biennial" && month !== 1) {
+      fail(`La fecha ${row.date} no corresponde a una serie bienal.`);
+    }
+  }
+
+  for (const indicatorId of M2_INDICATORS) {
+    if (!observations.some((row) => row.indicatorId === indicatorId)) {
+      fail(`El indicador M2 "${indicatorId}" no tiene observaciones.`);
+    }
+  }
+
+  const groups = new Map();
+  for (const row of observations) {
+    const key = `${row.indicatorId}|${row.sourceId}`;
+    const group = groups.get(key) ?? [];
+    group.push(row);
+    groups.set(key, group);
+  }
+
+  for (const [key, rows] of groups) {
+    rows.sort((a, b) => a.date.localeCompare(b.date));
+    const frequency = rows[0].frequency;
+    if (rows.some((row) => row.frequency !== frequency)) {
+      fail(`Frecuencias mezcladas en ${key}.`);
+    }
+    const step = STEP_MONTHS[frequency];
+    for (let index = 1; index < rows.length; index += 1) {
+      const difference =
+        monthIndex(rows[index].date) - monthIndex(rows[index - 1].date);
+      if (difference <= 0 || difference % step !== 0) {
+        fail(
+          `Cadencia inválida en ${key}: ${rows[index - 1].date} → ${rows[index].date}.`,
+        );
+      }
+    }
+  }
+}
+
+function loadOfficial(indicatorsById, sourcesById) {
+  const raw = JSON.parse(readFileSync(PROCESSED_PATH, "utf8"));
+  const rows = raw.observations;
+  if (!Array.isArray(rows) || rows.length === 0) {
+    fail("data/processed/observations.json no tiene observaciones.");
+  }
+
+  const observations = rows.map((row) =>
+    normalizeObservation(row, indicatorsById, sourcesById, "official"),
+  );
+
+  const provenance = {
+    kind: "official",
+    vintage: raw.provenance?.vintage ?? "desconocido",
+    referenceDate: raw.provenance?.referenceDate ?? raw.provenance?.vintage,
+    generatedFrom:
+      raw.provenance?.generatedFrom ?? "data/processed/observations.json",
+    note:
+      raw.provenance?.note ??
+      "Datos oficiales. Cada observación conserva fuente, estatus y vintage.",
+  };
+
+  for (const field of ["vintage", "referenceDate"]) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(provenance[field] ?? "")) {
+      fail(`Provenance inválido: ${field}.`);
+    }
+  }
+
+  return { observations, provenance };
+}
+
+function loadFixtures(indicatorsById, sourcesById) {
+  const [header, ...rows] = parseCsv(readFileSync(FIXTURES_PATH, "utf8"));
   if (!header) fail("El CSV de fixtures está vacío.");
 
   const requiredColumns = [
@@ -106,170 +305,88 @@ function parseObservations(csvText, indicatorsById, sourcesById) {
     "source_url",
     "note",
   ];
-
   const columnIndex = new Map(
     header.map((column, index) => [column.trim(), index]),
   );
-
   for (const column of requiredColumns) {
     if (!columnIndex.has(column)) {
-      fail(`Falta la columna obligatoria "${column}" en el CSV.`);
+      fail(`Falta la columna "${column}" en los fixtures.`);
     }
   }
 
-  const seen = new Set();
-  const observations = [];
-
+  const rawObservations = [];
   rows.forEach((cells, index) => {
     const line = index + 2;
     const get = (column) => cells[columnIndex.get(column)] ?? "";
-
     const indicatorId = get("indicator_id");
-    const indicator = indicatorsById.get(indicatorId);
-    if (!indicator) {
-      fail(`Línea ${line}: indicador desconocido "${indicatorId}".`);
-    }
+    if (!M2_INDICATORS.has(indicatorId)) return;
 
-    if (!M1_INDICATORS.has(indicatorId)) return;
-
-    const sourceId = get("source_id");
-    if (!sourcesById.has(sourceId)) {
-      fail(`Línea ${line}: fuente desconocida "${sourceId}".`);
-    }
-
-    const date = get("date");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      fail(`Línea ${line}: fecha inválida "${date}".`);
-    }
-
-    const parsedDate = new Date(`${date}T00:00:00Z`);
-    if (
-      Number.isNaN(parsedDate.getTime()) ||
-      parsedDate.toISOString().slice(0, 10) !== date
-    ) {
-      fail(`Línea ${line}: fecha fuera de calendario "${date}".`);
-    }
-
-    const month = Number(date.slice(5, 7));
-    if (date.slice(8, 10) !== "01" || month < 1 || month > 12) {
-      fail(
-        `Línea ${line}: la fecha ${date} debe ser el primer día de un periodo válido.`,
-      );
-    }
-
-    const value = Number(get("value"));
-    if (!Number.isFinite(value)) {
-      fail(`Línea ${line}: valor no numérico "${get("value")}".`);
-    }
-
-    const unit = get("unit");
-    if (unit !== indicator.unit) {
-      fail(
-        `Línea ${line}: la unidad "${unit}" no coincide con "${indicator.unit}".`,
-      );
-    }
-
-    const geography = get("geography");
-    if (geography !== "MX") {
-      fail(`Línea ${line}: geografía no soportada "${geography}".`);
-    }
-
-    const status = get("status");
-    if (status !== "fixture") {
-      fail(`Línea ${line}: los fixtures deben tener status="fixture".`);
-    }
-
-    const vintage = get("vintage");
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(vintage)) {
-      fail(`Línea ${line}: vintage inválido "${vintage}".`);
-    }
-
-    const note = get("note").trim();
-    if (!note) {
-      fail(`Línea ${line}: una observación fixture requiere note.`);
-    }
-
-    const key = `${indicatorId}|${date}|${sourceId}|${vintage}`;
-    if (seen.has(key)) {
-      fail(`Línea ${line}: observación duplicada (${key}).`);
-    }
-    seen.add(key);
-
-    observations.push({
-      indicatorId,
-      date,
-      value,
-      unit,
-      geography,
-      status,
-      vintage,
-      sourceId,
-      sourceUrl: get("source_url"),
-      note,
+    rawObservations.push({
+      indicator_id: indicatorId,
+      date: get("date"),
+      value: get("value"),
+      unit: get("unit"),
+      geography: get("geography"),
+      status: get("status"),
+      vintage: get("vintage"),
+      source_id: get("source_id"),
+      source_url: get("source_url"),
+      note: get("note"),
+      __line: line,
     });
   });
 
-  observations.sort(
-    (a, b) =>
-      a.indicatorId.localeCompare(b.indicatorId) ||
-      a.date.localeCompare(b.date) ||
-      a.sourceId.localeCompare(b.sourceId),
-  );
-
-  return observations;
-}
-
-function validateCadence(observations, indicatorsById) {
+  // La frecuencia de los fixtures se infiere de su cadencia real; el catálogo
+  // puede declarar la frecuencia de la fuente principal y no la del fixture.
+  const frequencyBySeries = new Map();
   const groups = new Map();
-
-  for (const observation of observations) {
-    const key = `${observation.indicatorId}|${observation.sourceId}`;
+  for (const row of rawObservations) {
+    const key = `${row.indicator_id}|${row.source_id}`;
     const group = groups.get(key) ?? [];
-    group.push(observation);
+    group.push({ date: row.date });
     groups.set(key, group);
   }
-
-  for (const [key, rows] of groups) {
-    const [indicatorId] = key.split("|");
-    const indicator = indicatorsById.get(indicatorId);
-    const step = STEP_MONTHS[indicator.frequency];
-    rows.sort((a, b) => a.date.localeCompare(b.date));
-
-    for (let index = 1; index < rows.length; index += 1) {
-      const previous = rows[index - 1];
-      const current = rows[index];
-      const previousIndex =
-        Number(previous.date.slice(0, 4)) * 12 +
-        Number(previous.date.slice(5, 7)) -
-        1;
-      const currentIndex =
-        Number(current.date.slice(0, 4)) * 12 +
-        Number(current.date.slice(5, 7)) -
-        1;
-      const difference = currentIndex - previousIndex;
-
-      if (difference <= 0 || difference % step !== 0) {
-        fail(
-          `${indicatorId}/${key.split("|")[1]}: ${current.date} no sigue la cadencia ${indicator.frequency} desde ${previous.date}.`,
-        );
-      }
-    }
+  for (const [key, group] of groups) {
+    const inferred = inferFrequency(group);
+    if (inferred) frequencyBySeries.set(key, inferred);
   }
+
+  const observations = rawObservations.map((row) => {
+    const key = `${row.indicator_id}|${row.source_id}`;
+    const indicator = indicatorsById.get(row.indicator_id);
+    return normalizeObservation(
+      {
+        ...row,
+        frequency:
+          frequencyBySeries.get(key) ?? indicator?.frequency ?? "monthly",
+      },
+      indicatorsById,
+      sourcesById,
+      "fixture",
+    );
+  });
+
+  const vintages = [...new Set(observations.map((row) => row.vintage))].sort();
+  const vintage = vintages.at(-1) ?? "desconocido";
+  const version = readJson("indicators.json").version;
+  const referenceDate =
+    typeof version === "string" && /^\d{4}-\d{2}-\d{2}$/.test(version)
+      ? version
+      : vintage;
+
+  return {
+    observations,
+    provenance: {
+      kind: "fixture",
+      vintage,
+      referenceDate,
+      generatedFrom: "data/fixtures/observations.sample.csv",
+      note: "Datos sintéticos de desarrollo. No son cifras reales.",
+    },
+  };
 }
 
 function main() {
-  const fixturesPath = join(DATA_DIR, "fixtures", "observations.sample.csv");
-
-  if (!existsSync(fixturesPath)) {
-    if (existsSync(OUTPUT_PATH)) {
-      console.warn(
-        "[sync-data] No se encontró data/ en el repositorio. Se conserva el dataset generado.",
-      );
-      return;
-    }
-    fail(`No existe ${fixturesPath} ni un dataset generado previo.`);
-  }
-
   const indicatorsJson = readJson("indicators.json");
   const sourcesJson = readJson("sources.json");
   const termsJson = readJson("terms.json");
@@ -287,37 +404,31 @@ function main() {
   const indicatorsById = new Map(indicators.map((item) => [item.id, item]));
   const sourcesById = new Map(sources.map((item) => [item.id, item]));
 
-  const observations = parseObservations(
-    readFileSync(fixturesPath, "utf8"),
-    indicatorsById,
-    sourcesById,
-  );
+  let observations;
+  let provenance;
+  let sourceLabel;
 
-  validateCadence(observations, indicatorsById);
-
-  const represented = new Set(observations.map((item) => item.indicatorId));
-  for (const indicatorId of M1_INDICATORS) {
-    if (!represented.has(indicatorId)) {
-      fail(`El indicador M1 "${indicatorId}" no tiene observaciones.`);
+  if (!FORCE_FIXTURES && existsSync(PROCESSED_PATH)) {
+    ({ observations, provenance } = loadOfficial(indicatorsById, sourcesById));
+    sourceLabel = "data/processed/observations.json";
+  } else if (!FORCE_FIXTURES && existsSync(OUTPUT_PATH)) {
+    log("No hay datos procesados nuevos; se conserva el dataset generado.");
+    return;
+  } else {
+    if (!existsSync(FIXTURES_PATH)) {
+      fail("No hay datos procesados ni fixtures para generar el dataset.");
     }
+    ({ observations, provenance } = loadFixtures(
+      indicatorsById,
+      sourcesById,
+    ));
+    sourceLabel = "data/fixtures/observations.sample.csv";
   }
 
-  const vintages = [...new Set(observations.map((item) => item.vintage))].sort();
-  const vintage = vintages.at(-1) ?? "desconocido";
-  const referenceDate =
-    typeof indicatorsJson.version === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(indicatorsJson.version)
-      ? indicatorsJson.version
-      : vintage;
+  validate(observations, indicators, sources, provenance.kind);
 
   const dataset = {
-    provenance: {
-      kind: "fixture",
-      vintage,
-      referenceDate,
-      generatedFrom: "data/fixtures/observations.sample.csv",
-      note: "Datos sintéticos de desarrollo. No son cifras reales.",
-    },
+    provenance,
     indicators,
     terms,
     sources,
@@ -327,7 +438,7 @@ function main() {
 
   const output = `/* eslint-disable */
 // Archivo generado por web/scripts/sync-data.mjs. No editar a mano.
-// Origen: data/metadata/*.json y data/fixtures/observations.sample.csv
+// Origen: ${sourceLabel}
 import type { Dataset } from "@/lib/types";
 
 export const dataset: Dataset = ${JSON.stringify(dataset, null, 2)};
@@ -340,11 +451,11 @@ export const dataset: Dataset = ${JSON.stringify(dataset, null, 2)};
     : "";
   if (previous !== output) {
     writeFileSync(OUTPUT_PATH, output, "utf8");
-    console.log(
-      `[sync-data] dataset.ts actualizado: ${observations.length} observaciones, ${represented.size} indicadores.`,
+    log(
+      `dataset.ts actualizado (${provenance.kind}): ${observations.length} observaciones, ${new Set(observations.map((row) => row.indicatorId)).size} indicadores.`,
     );
   } else {
-    console.log("[sync-data] dataset.ts ya está al día.");
+    log("dataset.ts ya está al día.");
   }
 }
 

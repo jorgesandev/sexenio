@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCsvExport } from "@/components/explorer/csv-export-context";
 import { ROUTES, isRouteActive } from "@/lib/routes";
 import { strings } from "@/lib/strings";
 
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { payload, download } = useCsvExport();
 
   return (
     <header className="sticky top-0 z-40 border-b border-rule bg-paper">
@@ -53,9 +55,16 @@ export function SiteHeader() {
         <button
           type="button"
           className="btn hidden shrink-0 md:inline-flex"
-          disabled
-          aria-label={`${strings.header.export}. ${strings.header.exportDisabled}`}
-          title={strings.header.exportDisabled}
+          disabled={!payload}
+          onClick={download}
+          aria-label={
+            payload
+              ? strings.header.exportReady
+              : strings.header.exportDisabled
+          }
+          title={
+            payload ? strings.header.exportReady : strings.header.exportDisabled
+          }
         >
           {strings.header.export}
         </button>

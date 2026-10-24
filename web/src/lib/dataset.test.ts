@@ -9,17 +9,18 @@ import {
   getObservations,
   isIndicatorAvailable,
 } from "./dataset";
+import { DATA_STATUSES } from "./types";
 
-const M1_INDICATORS = [
+const M2_INDICATORS = [
   "homicidio_100k",
   "pib_pc_real",
   "pobreza_mult",
   "deuda_shrfsp_pib",
 ];
 
-describe("dataset de fixtures", () => {
-  test("se identifica como fixture y tiene un corte", () => {
-    expect(dataset.provenance.kind).toBe("fixture");
+describe("dataset de la aplicación", () => {
+  test("se identifica como oficial o fixture y tiene un corte", () => {
+    expect(["official", "fixture"]).toContain(dataset.provenance.kind);
     expect(dataset.provenance.vintage).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(dataset.provenance.referenceDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
@@ -27,11 +28,11 @@ describe("dataset de fixtures", () => {
   test("mantiene el catálogo completo y cuatro indicadores con datos", () => {
     expect(dataset.indicators).toHaveLength(12);
     expect(dataset.terms).toHaveLength(6);
-    expect(availableIndicatorIds).toEqual([...M1_INDICATORS].sort());
+    expect(availableIndicatorIds).toEqual([...M2_INDICATORS].sort());
     expect(isIndicatorAvailable(DEFAULT_INDICATOR_ID)).toBe(true);
   });
 
-  test("todas las observaciones son sintéticas y trazables", () => {
+  test("todas las observaciones son trazables", () => {
     const indicatorsById = new Map(
       dataset.indicators.map((indicator) => [indicator.id, indicator]),
     );
@@ -46,13 +47,19 @@ describe("dataset de fixtures", () => {
       }
 
       expect(sourcesById.has(observation.sourceId)).toBe(true);
-      expect(observation.status).toBe("fixture");
+      expect(DATA_STATUSES).toContain(observation.status);
       expect(observation.geography).toBe("MX");
       expect(observation.unit).toBe(indicator.unit);
       expect(observation.date.endsWith("-01")).toBe(true);
-      expect(observation.note).toContain("SINTÉTICO");
+      expect(observation.frequency).toBeTruthy();
+      expect(observation.sourceUrl.length).toBeGreaterThan(0);
+      expect(observation.note.length).toBeGreaterThan(0);
       expect(observation.vintage).toBe(dataset.provenance.vintage);
       expect(Number.isFinite(observation.value)).toBe(true);
+
+      if (observation.status === "fixture") {
+        expect(observation.note).toContain("SINTÉTICO");
+      }
     }
   });
 
@@ -65,8 +72,8 @@ describe("dataset de fixtures", () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  test("los cuatro indicadores M1 tienen fuente y datos ordenados", () => {
-    for (const indicatorId of M1_INDICATORS) {
+  test("los cuatro indicadores M2 tienen fuente y datos ordenados", () => {
+    for (const indicatorId of M2_INDICATORS) {
       const sources = availableSourceIds(indicatorId);
       expect(sources.length).toBeGreaterThan(0);
 
@@ -78,6 +85,17 @@ describe("dataset de fixtures", () => {
         const dates = observations.map((observation) => observation.date);
         expect(dates).toEqual([...dates].sort());
       }
+    }
+  });
+
+  test("homicidios conserva las dos frecuencias de fuente", () => {
+    if (dataset.provenance.kind === "official") {
+      expect(getObservations("homicidio_100k", "inegi")[0]?.frequency).toBe(
+        "annual",
+      );
+      expect(getObservations("homicidio_100k", "sesnsp")[0]?.frequency).toBe(
+        "monthly",
+      );
     }
   });
 

@@ -41,6 +41,14 @@
       "notes": "Funciones absorbidas por INEGI en 2025; verificar serie vigente."
     },
     {
+      "id": "conapo",
+      "name": "CONAPO",
+      "url": "https://www.gob.mx/conapo",
+      "access": "csv",
+      "license": "Consultar términos de uso",
+      "notes": "Proyecciones y población a mitad de año; denominador de tasas y per cápita."
+    },
+    {
       "id": "imss",
       "name": "Instituto Mexicano del Seguro Social",
       "url": "https://www.imss.gob.mx/",

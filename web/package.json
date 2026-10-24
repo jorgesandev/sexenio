@@ -9,6 +9,7 @@
     "dev": "next dev",
     "prebuild": "bun run sync:data",
     "build": "next build",
+    "deploy": "wrangler deploy",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "pretest": "bun run sync:data",
@@ -29,6 +30,7 @@
     "eslint": "^9.38.0",
     "eslint-config-next": "16.4.3",
     "tailwindcss": "^4.1.16",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.152.0"
   }
 }

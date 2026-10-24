@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ChartControls } from "@/components/explorer/chart-controls";
 import { ChartSkeleton } from "@/components/explorer/chart-skeleton";
 import { CoverageStrip } from "@/components/explorer/coverage-strip";
+import { useRegisterCsvExport } from "@/components/explorer/csv-export-context";
 import {
   EmptyState,
   IndexErrorState,
@@ -13,6 +14,7 @@ import {
 import { ObservationsTable } from "@/components/explorer/observations-table";
 import { SourceDrawer } from "@/components/explorer/source-drawer";
 import { TermRail } from "@/components/explorer/term-rail";
+import { buildViewCsv } from "@/lib/csv";
 import {
   EXPLORER_MIN_MONTH,
   EXPLORER_REFERENCE_MONTH,
@@ -34,7 +36,6 @@ import {
   viewLabels,
 } from "@/lib/strings";
 import { useExplorerState } from "@/lib/use-explorer-state";
-import { termAtDate } from "@/lib/terms";
 import type { ViewMode } from "@/lib/url-state";
 
 const TimeSeriesChart = dynamic(
@@ -58,15 +59,45 @@ export function Explorer() {
 
   const model = useMemo(() => buildExplorerModel(state), [state]);
   const summary = model.series.summary;
-  const latestTerm = summary
-    ? termAtDate(summary.lastDate, model.terms)
-    : undefined;
+  const includesInProgressTerm = model.terms.some(
+    (term) =>
+      term.inProgress &&
+      term.start.slice(0, 7) <= state.to &&
+      term.end.slice(0, 7) >= state.from,
+  );
 
   const indexError = model.series.error === "index-baseline";
   const isAlternateSource =
     model.activeSourceId !== model.indicator.sourceId;
   const sourceEmpty =
     !model.hasData && isAlternateSource && model.primaryHasData;
+
+  const csvPayload = useMemo(() => {
+    if (!model.hasData || indexError) return null;
+    return buildViewCsv({
+      indicator: model.indicator,
+      source: model.activeSource,
+      observations: model.rangeObservations,
+      points: model.series.points,
+      view: state.view,
+      ma: state.ma,
+      from: state.from,
+      to: state.to,
+    });
+  }, [
+    indexError,
+    model.activeSource,
+    model.hasData,
+    model.indicator,
+    model.rangeObservations,
+    model.series.points,
+    state.from,
+    state.ma,
+    state.to,
+    state.view,
+  ]);
+
+  useRegisterCsvExport(csvPayload);
 
   const chartSummary = summary
     ? fill(strings.chart.aria, {
@@ -92,9 +123,15 @@ export function Explorer() {
   if (model.maNotApplicable) {
     warnings.push(
       fill(strings.explorer.maNotApplicable, {
-        frequency: frequencyLabels[model.indicator.frequency],
+        frequency: frequencyLabels[model.activeFrequency],
       }),
     );
+  }
+  if (model.statuses.includes("preliminar")) {
+    warnings.push(strings.explorer.preliminaryNote);
+  }
+  if (model.statuses.includes("estimado")) {
+    warnings.push(strings.explorer.estimatedNote);
   }
 
   return (
@@ -107,7 +144,7 @@ export function Explorer() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="chart-title text-ink">{model.indicator.name}</h1>
-              {latestTerm?.inProgress ? (
+              {includesInProgressTerm ? (
                 <span className="badge badge-danger">
                   {strings.explorer.inProgress}
                 </span>
@@ -115,7 +152,7 @@ export function Explorer() {
             </div>
             <p className="mt-1.5 text-[13px] leading-5 text-muted">
               {model.indicator.unit} ·{" "}
-              {frequencyLabels[model.indicator.frequency]} ·{" "}
+              {frequencyLabels[model.activeFrequency]} ·{" "}
               {model.activeSource.name}
             </p>
           </div>
@@ -230,6 +267,7 @@ export function Explorer() {
                   to={state.to}
                   view={state.view}
                   scale={model.effectiveScale}
+                  frequency={model.activeFrequency}
                   summary={chartSummary}
                 />
               </div>

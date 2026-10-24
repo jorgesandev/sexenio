@@ -11,8 +11,11 @@ import {
 import {
   availableIndicatorIds,
   dataset,
+  getObservations,
+  getPrimaryFrequency,
   isIndicatorAvailable,
 } from "@/lib/dataset";
+import { DataStatusBadge } from "@/components/ui/data-status-badge";
 import { fill, dimensionLabels, frequencyLabels, strings } from "@/lib/strings";
 import type { Dimension } from "@/lib/types";
 import { DIMENSIONS } from "@/lib/types";
@@ -166,6 +169,12 @@ function CatalogPanel({
                 {group.items.map((indicator) => {
                   const available = isIndicatorAvailable(indicator.id);
                   const active = indicator.id === activeIndicatorId;
+                  const frequency =
+                    getPrimaryFrequency(indicator.id) ?? indicator.frequency;
+                  const latest = getObservations(
+                    indicator.id,
+                    indicator.sourceId,
+                  ).at(-1);
                   return (
                     <li key={indicator.id}>
                       <button
@@ -186,9 +195,9 @@ function CatalogPanel({
                             {indicator.shortName}
                           </span>
                           {available ? (
-                            <span className="badge mt-px shrink-0">
-                              {strings.sidebar.available}
-                            </span>
+                            <DataStatusBadge
+                              status={latest?.status ?? "fixture"}
+                            />
                           ) : (
                             <span className="badge mt-px shrink-0 opacity-80">
                               {strings.sidebar.upcoming}
@@ -196,8 +205,7 @@ function CatalogPanel({
                           )}
                         </span>
                         <span className="text-[11px] leading-4 text-muted">
-                          {indicator.unit} ·{" "}
-                          {frequencyLabels[indicator.frequency]}
+                          {indicator.unit} · {frequencyLabels[frequency]}
                         </span>
                       </button>
                     </li>

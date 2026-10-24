@@ -13,6 +13,7 @@ import {
 } from "@/lib/series";
 import type {
   DataStatus,
+  Frequency,
   Indicator,
   Observation,
   Source,
@@ -27,6 +28,7 @@ export interface SourceChoice {
   count: number;
   hasData: boolean;
   isActive: boolean;
+  frequency: Frequency;
 }
 
 export interface ExplorerModel {
@@ -39,8 +41,10 @@ export interface ExplorerModel {
   sourceChoices: SourceChoice[];
   observations: Observation[];
   rangeObservations: Observation[];
+  latestObservation: Observation | null;
   series: SeriesResult;
   coverage: CoverageResult;
+  activeFrequency: Frequency;
   canLog: boolean;
   effectiveScale: ScaleMode;
   scaleFallback: boolean;
@@ -70,6 +74,7 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
   const activeSource = requireSource(requestedSourceId);
   const primarySource = requireSource(indicator.sourceId);
   const observations = getObservations(indicator.id, requestedSourceId);
+  const activeFrequency = observations[0]?.frequency ?? indicator.frequency;
 
   const rangeObservations = observations.filter((observation) => {
     const month = isoMonthOf(observation.date);
@@ -79,7 +84,7 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
   const series = buildSeries(observations, {
     from: state.from,
     to: state.to,
-    frequency: indicator.frequency,
+    frequency: activeFrequency,
     view: state.view,
     ma: state.ma,
   });
@@ -89,6 +94,7 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
     indicator,
     referenceYear,
     referenceMonth,
+    activeFrequency,
   );
 
   const values = series.chartPoints
@@ -105,13 +111,15 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
 
   const sourceChoices: SourceChoice[] = [...new Set(sourceIds)].map((id) => {
     const source = requireSource(id);
-    const count = getObservations(indicator.id, id).length;
+    const sourceObservations = getObservations(indicator.id, id);
+    const count = sourceObservations.length;
     return {
       id,
       source,
       count,
       hasData: count > 0,
       isActive: id === requestedSourceId,
+      frequency: sourceObservations[0]?.frequency ?? indicator.frequency,
     };
   });
 
@@ -128,6 +136,9 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
   const primaryHasData =
     getObservations(indicator.id, indicator.sourceId).length > 0;
 
+  const latestObservation =
+    rangeObservations.at(-1) ?? observations.at(-1) ?? null;
+
   return {
     indicator,
     terms: dataset.terms,
@@ -138,8 +149,10 @@ export function buildExplorerModel(state: ExplorerState): ExplorerModel {
     sourceChoices,
     observations,
     rangeObservations,
+    latestObservation,
     series,
     coverage,
+    activeFrequency,
     canLog,
     effectiveScale:
       state.scale === "log" && canLog ? "log" : "linear",

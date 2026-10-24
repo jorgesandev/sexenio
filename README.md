@@ -6,7 +6,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-**M1 completado.** El explorador en `web/` ya incluye shell responsive, sistema de diseño, estado en URL y los cuatro indicadores fixture. El siguiente hito es **M2**: sustituir los fixtures por datos reales con fuente, `vintage` y quiebres visibles.
+**M2 completado.** El explorador ya usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. Incluye exportación CSV de la vista. El siguiente hito es **M3**: comparador de sexenios.
 
 ## Documentación
 
@@ -55,8 +55,11 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 Requisitos: bun y Python 3.12+.
 
 ```bash
-# Fixtures de desarrollo (sin tokens)
+# Fixtures de desarrollo (fallback)
 python3 etl/make_fixtures.py
+
+# Datos oficiales (requiere INEGI_TOKEN en .env.local)
+python3 etl/build_dataset.py --refresh --vintage 2026-10-23
 
 # Frontend
 cd web
@@ -64,12 +67,30 @@ bun install
 bun dev
 ```
 
-El explorador abre en <http://localhost:3000/explorar>. Los fixtures se regeneran y validan automáticamente al iniciar.
+El explorador abre en <http://localhost:3000/explorar>. El ETL escribe en `data/processed/` (ignorado) y `web/scripts/sync-data.mjs` empaqueta el dataset tipado que consume la aplicación.
 
 Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conectar datos reales:
 
 - `INEGI_TOKEN`
 - `BANXICO_TOKEN`
+
+## Demo pública y despliegue
+
+Explorador M2: <https://sexenio-demo.jorgesandev.workers.dev/explorar/>.
+Publica el dataset oficial generado; este despliegue no implica el cierre de M6.
+
+El demo se publica mediante Cloudflare Workers Static Assets con `web/wrangler.jsonc`.
+Para reconstruir y desplegar con una sesión de Cloudflare autorizada:
+
+```bash
+cd web
+bun install --frozen-lockfile
+bun run deploy
+```
+
+Wrangler ejecuta el build y publica únicamente `web/out/`. Este despliegue es manual; no configura despliegues automáticos desde GitHub.
+
+`INEGI_TOKEN` se usa únicamente al ejecutar el ETL local. No hace falta añadirlo al Worker: el build aislado conserva `web/src/data/generated/dataset.ts`, que se versiona sin credenciales. Para actualizar los datos, ejecuta el ETL, `bun run sync:data` desde `web/`, revisa y versiona el dataset generado, y vuelve a desplegar.
 
 ## Stack
 
@@ -77,7 +98,7 @@ Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conecta
 - ECharts para series de tiempo
 - JSON/CSV estáticos en v0; Parquet + DuckDB-WASM se evalúa en v2
 - ETL en Python + Polars
-- Despliegue previsto: Cloudflare Pages
+- Despliegue: Cloudflare Workers Static Assets
 
 ## Licencia
 

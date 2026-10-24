@@ -32,6 +32,7 @@ function observation(date: string, frequency: Frequency = "monthly"): Observatio
     sourceId: "inegi",
     sourceUrl: "https://example.org",
     note: `DATO SINTÉTICO — ${frequency}`,
+    frequency,
   };
 }
 
@@ -43,7 +44,7 @@ function monthlyDates(year: number, months: number[]): Observation[] {
 
 describe("buildCoverage", () => {
   test("sin observaciones devuelve un resultado vacío", () => {
-    expect(buildCoverage([], indicator(), 2025, 6, 2023)).toEqual({
+    expect(buildCoverage([], indicator(), 2025, 6, "monthly", 2023)).toEqual({
       years: [],
       withData: 0,
       totalYears: 0,
@@ -58,6 +59,7 @@ describe("buildCoverage", () => {
       indicator(),
       2025,
       6,
+      "monthly",
       2023,
     );
 
@@ -77,6 +79,7 @@ describe("buildCoverage", () => {
       indicator(),
       2024,
       12,
+      "monthly",
       2024,
     );
 
@@ -91,6 +94,7 @@ describe("buildCoverage", () => {
       indicator(),
       2024,
       6,
+      "monthly",
       2024,
     );
 
@@ -111,6 +115,7 @@ describe("buildCoverage", () => {
       }),
       2025,
       12,
+      "quarterly",
       2024,
     );
 
@@ -135,6 +140,7 @@ describe("buildCoverage", () => {
       }),
       2013,
       6,
+      "biennial",
       2008,
     );
 
@@ -162,6 +168,7 @@ describe("buildCoverage", () => {
       }),
       2024,
       12,
+      "monthly",
       2024,
     );
 

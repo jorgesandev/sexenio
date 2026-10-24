@@ -78,6 +78,7 @@ export function buildCoverage(
   indicator: Indicator,
   referenceYear: number,
   referenceMonth: number,
+  frequency: Frequency,
   displayStartYear = 1994,
 ): CoverageResult {
   const sorted = [...observations].sort((a, b) => a.date.localeCompare(b.date));
@@ -118,7 +119,7 @@ export function buildCoverage(
     const observed = observedByYear.get(year) ?? 0;
     const expected = expectedPeriods(
       year,
-      indicator.frequency,
+      frequency,
       cadence,
       dataStartYear,
       referenceYear,

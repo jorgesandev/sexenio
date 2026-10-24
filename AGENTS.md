@@ -14,9 +14,9 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-M1 completado: shell responsive, sistema de diseño, estado en URL y explorador con los cuatro indicadores fixture. La aplicación vive en `web/`; el siguiente hito es M2 (ingesta de datos reales).
+M2 completado: el explorador usa datos oficiales de INEGI, SESNSP, CONEVAL/INEGI y SHCP, con fuente, estatus y `vintage` por observación. La exportación CSV de la vista está disponible. El siguiente hito es M3 (comparador).
 
-El explorador se sirve como sitio estático (`output: "export"`). Los fixtures se copian y validan con `bun run sync:data` antes de `dev`, `build` y `test`.
+El ETL escribe `data/processed/` (ignorado). La web empaqueta una copia tipada en `web/src/data/generated/dataset.ts`, que se versiona para builds aislados. Sin datos procesados, `sync:data` conserva el dataset generado; `--fixtures` fuerza el fallback sintético.
 
 ## Comandos
 
@@ -31,10 +31,11 @@ bun run lint
 bun test
 ```
 
-ETL (cuando exista):
+ETL (requiere `INEGI_TOKEN` en `.env.local`):
 
 ```bash
-python3 etl/make_fixtures.py   # regenera fixtures sintéticos
+python3 etl/build_dataset.py --refresh --vintage 2026-10-23
+python3 etl/make_fixtures.py   # regenera fixtures sintéticos de fallback
 ```
 
 No hay backend. El sitio es estático y el estado vive en la URL.
@@ -46,7 +47,7 @@ No hay backend. El sitio es estático y el estado vive en la URL.
 - ECharts para series de tiempo.
 - Datos servidos como JSON/CSV en v0; Parquet + DuckDB-WASM se evalúa en v2.
 - ETL en Python 3.12 + Polars (los fixtures actuales usan solo stdlib).
-- Despliegue previsto: Cloudflare Pages.
+- Despliegue actual: Cloudflare Workers Static Assets (`web/wrangler.jsonc`).
 
 No agregues dependencias sin justificar que el stack existente no cubre el caso.
 

@@ -6,6 +6,7 @@ import { FixtureBanner } from "@/components/shell/fixture-banner";
 import { Sidebar, SidebarFallback } from "@/components/shell/sidebar";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { SiteHeader } from "@/components/shell/site-header";
+import { CsvExportProvider } from "@/components/explorer/csv-export-context";
 import { availableIndicatorIds } from "@/lib/dataset";
 import { normalizePathname } from "@/lib/routes";
 import { fill, strings } from "@/lib/strings";
@@ -16,7 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [catalogOpen, setCatalogOpen] = useState(false);
 
   return (
-    <>
+    <CsvExportProvider>
       <SiteHeader />
       {isExplorer ? <FixtureBanner /> : null}
       <div className="mx-auto flex w-full max-w-[1440px] items-start">
@@ -49,6 +50,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SiteFooter />
         </main>
       </div>
-    </>
+    </CsvExportProvider>
   );
 }

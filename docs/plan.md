@@ -36,15 +36,15 @@ Depende de: nada. No requiere tokens.
 
 **Terminado cuando:** `/explorar` muestra los 4 indicadores fixture, cambia de rango y vista, y la URL reproduce el estado.
 
-### M2 — Explorador con datos reales (4 indicadores)
+### M2 — Explorador con datos reales (4 indicadores) (hecho)
 
 Depende de: M1 y tokens de INEGI/Banxico (o CSV manual trazable).
 
-- [ ] `etl/` con descarga, normalización y validación.
-- [ ] Ingesta de homicidios (SESNSP e INEGI), PIB per cápita, pobreza y deuda SHRFSP.
-- [ ] Metadatos de procedencia y `vintage` por observación.
-- [ ] Quiebres metodológicos visibles.
-- [ ] Exportación CSV de la vista.
+- [x] `etl/` con descarga, normalización y validación.
+- [x] Ingesta de homicidios (SESNSP e INEGI), PIB per cápita, pobreza y deuda SHRFSP.
+- [x] Metadatos de procedencia y `vintage` por observación.
+- [x] Quiebres metodológicos visibles.
+- [x] Exportación CSV de la vista.
 
 **Terminado cuando:** los 4 indicadores salen de fuente real, con fuente y fecha visibles, y los fixtures quedan solo como fallback de desarrollo.
 

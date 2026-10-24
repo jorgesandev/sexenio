@@ -26,7 +26,7 @@ data/
   "shortName": "Homicidios",
   "dimension": "seguridad",
   "unit": "por 100 mil habitantes",
-  "frequency": "monthly",
+  "frequency": "annual",
   "direction": "down",
   "sourceId": "inegi",
   "alternateSourceId": "sesnsp",
@@ -41,6 +41,9 @@ Enums:
 
 - `dimension`: `economia`, `empleo`, `social`, `seguridad`, `fiscal`, `instituciones`, `energia`, `democracia`.
 - `frequency`: `monthly`, `quarterly`, `annual`, `biennial`.
+- La frecuencia del catálogo es la de la fuente principal. Una misma observación
+  puede declarar su propia `frequency` cuando la fuente alterna tiene otra
+  cadencia (caso de homicidios: INEGI anual, SESNSP mensual).
 - `direction`: `up` (más es mejor) o `down` (más es peor).
 
 ### Observación
@@ -58,13 +61,14 @@ Formato largo, una fila por indicador-fecha-fuente.
 | `vintage` | ISO date | Fecha de descarga o corte |
 | `source_id` | string | Debe existir en `sources.json` |
 | `source_url` | string | URL exacta del dato |
+| `frequency` | enum | Cadencia real de la fuente; puede diferir entre fuentes |
 | `note` | string | Opcional; obligatorio si `status=fixture` |
 
 Ejemplo:
 
 ```csv
-indicator_id,date,value,unit,geography,status,vintage,source_id,source_url,note
-homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,inegi,https://www.inegi.org.mx/,
+indicator_id,date,value,unit,geography,status,vintage,source_id,source_url,frequency,note
+homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,inegi,https://www.inegi.org.mx/,annual,
 ```
 
 ### Sexenio
@@ -108,9 +112,9 @@ homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,ine
 | `informalidad` | Tasa de informalidad laboral | trimestral | down | INEGI (ENOE) | 2005 |
 | `pobreza_mult` | Pobreza multidimensional | bienal | down | CONEVAL/INEGI | 2008 |
 | `gini` | Coeficiente de Gini | bienal | down | CONEVAL/INEGI | 2008 |
-| `homicidio_100k` | Homicidio doloso por 100 mil | mensual | down | INEGI/SESNSP | 1990 |
+| `homicidio_100k` | Homicidio doloso por 100 mil | anual / mensual | down | INEGI/SESNSP | 1990 |
 | `extorsion_100k` | Extorsión por 100 mil | mensual | down | SESNSP | 2015 |
-| `deuda_shrfsp_pib` | Deuda amplia / PIB | trimestral | down | SHCP | 1994 |
+| `deuda_shrfsp_pib` | Deuda amplia / PIB | trimestral | down | SHCP | 2000 |
 | `ingresos_trib_pib` | Ingresos tributarios / PIB | anual | up | SHCP | 1990 |
 | `gasto_salud_pc` | Gasto en salud per cápita real | anual | up | Salud/SHCP | 2000 |
 
@@ -150,3 +154,32 @@ homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,ine
 - `note` siempre dice `DATO SINTÉTICO — solo desarrollo`.
 - La UI debe mostrar un banner mientras haya fixtures en pantalla.
 - Nunca se despliegan a producción.
+
+## Datos oficiales (M2)
+
+`etl/build_dataset.py` genera `data/processed/observations.json` y
+`data/processed/manifest.json` (ignorados por Git). La web empaqueta una copia
+tipada en `web/src/data/generated/dataset.ts`, que sí se versiona para permitir
+builds aislados.
+
+| Indicador | Fuente | Frecuencia | Transformación |
+|---|---|---|---|
+| `pib_pc_real` | INEGI PIBT base 2018 + CONAPO | trimestral | PIB desestacionalizado / población a mitad de año |
+| `homicidio_100k` | INEGI (defunciones) | anual | tasa publicada por INEGI |
+| `homicidio_100k` | SESNSP (víctimas) | mensual | víctimas de homicidio doloso / población × 100 mil |
+| `pobreza_mult` | CONEVAL 2008-2020 + INEGI 2022-2024 | bienal | porcentaje nacional; quiebre 2022 |
+| `deuda_shrfsp_pib` | SHCP SHRFSP + INEGI PIB nominal | trimestral | SHRFSP / PIB nominal × 100 |
+
+Reglas específicas:
+
+- Homicidios INEGI y SESNSP se conservan como series separadas; el explorador
+  permite alternar la fuente. La tasa SESNSP es mensual y la de INEGI anual.
+- La población usada como denominador es la población a mitad de año de
+  CONAPO; los años de proyección se marcan como `estimado`.
+- La pobreza no se empalma: 2008-2020 es CONEVAL y 2022-2024 fue publicada por
+  INEGI con cambio metodológico.
+- El PIB nominal usado para SHRFSP/PIB se congela en
+  `etl/manual/inegi_pib_nominal_quarterly.csv` porque el tabulado oficial se
+  renderiza en el navegador y no ofrece un CSV estable.
+- El token de INEGI vive en `.env.local` y nunca se escribe en los datos,
+  metadatos ni URLs publicadas.

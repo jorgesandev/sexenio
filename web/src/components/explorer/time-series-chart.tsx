@@ -14,6 +14,7 @@ import type { EChartsType } from "echarts/core";
 import { buildChartOption } from "@/lib/chart-option";
 import type { ChartPoint } from "@/lib/series";
 import type {
+  Frequency,
   Indicator,
   Observation,
   Source,
@@ -40,6 +41,7 @@ export interface TimeSeriesChartProps {
   to: string;
   view: ViewMode;
   scale: ScaleMode;
+  frequency: Frequency;
   summary: string;
 }
 
@@ -53,6 +55,7 @@ export function TimeSeriesChart({
   to,
   view,
   scale,
+  frequency,
   summary,
 }: TimeSeriesChartProps) {
   const elementRef = useRef<HTMLDivElement>(null);
@@ -98,6 +101,7 @@ export function TimeSeriesChart({
         to,
         view,
         scale,
+        frequency,
         fontFamily,
       }),
       { notMerge: true },
@@ -112,6 +116,7 @@ export function TimeSeriesChart({
     to,
     view,
     scale,
+    frequency,
     fontFamily,
   ]);
 

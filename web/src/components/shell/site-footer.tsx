@@ -4,13 +4,18 @@ import { ROUTES } from "@/lib/routes";
 import { fill, strings } from "@/lib/strings";
 
 export function SiteFooter() {
+  const note =
+    dataset.provenance.kind === "fixture"
+      ? strings.footer.note
+      : strings.footer.officialNote;
+
   return (
     <footer className="mt-12 border-t border-rule px-4 py-6 lg:px-6">
       <div className="flex flex-col gap-2 text-[11px] leading-4 text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>
           <span className="font-medium text-ink">{strings.header.brand}</span>
           {" · "}
-          {strings.footer.note}
+          {note}
           {" · "}
           {fill(strings.footer.vintage, {
             vintage: dataset.provenance.vintage,

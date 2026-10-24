@@ -27,8 +27,8 @@ export const strings = {
     brand: "Sexenio",
     tagline: "México en perspectiva",
     export: "Exportar CSV",
-    exportDisabled:
-      "La exportación CSV estará disponible cuando la vista use datos reales.",
+    exportReady: "Exportar la vista actual a CSV",
+    exportDisabled: "No hay una vista con datos para exportar.",
     skip: "Saltar al contenido",
   },
   fixture: {
@@ -86,6 +86,10 @@ export const strings = {
       "El suavizado no aplica a una serie {frequency}; se muestra la serie original.",
     logFallback:
       "La escala logarítmica requiere valores positivos. Se muestra en escala lineal.",
+    preliminaryNote:
+      "La serie incluye cifras preliminares; revisa el estatus en la tabla.",
+    estimatedNote:
+      "La serie incluye valores estimados; revisa el estatus en la tabla.",
     inProgress: "en curso",
     viewDescription: {
       level: "Valor observado en cada periodo.",
@@ -150,6 +154,7 @@ export const strings = {
     direction: "Dirección",
     yearsWithData: "Años con dato",
     alternateCount: "{count} observaciones",
+    dataUrl: "URL del dato",
     lastVintage: "Última descarga",
     frequency: "Frecuencia",
     observationCount: "Observaciones",
@@ -186,6 +191,7 @@ export const strings = {
   },
   footer: {
     note: "Datos sintéticos de desarrollo",
+    officialNote: "Fuentes oficiales",
     vintage: "Corte {vintage}",
     methodology: "Metodología y fuentes",
     noRanking: "Sin ranking por defecto: el índice lo construye el usuario.",
@@ -267,6 +273,28 @@ export const accessLabels: Record<AccessType, string> = {
   csv: "CSV",
   mixed: "Mixta",
 };
+
+const SOURCE_SHORT_NAMES: Record<string, string> = {
+  inegi: "INEGI",
+  sesnsp: "SESNSP",
+  shcp: "SHCP",
+  coneval: "CONEVAL",
+  conapo: "CONAPO",
+  banxico: "Banxico",
+  imss: "IMSS",
+  salud: "Salud",
+  oms: "OMS",
+  wb: "Banco Mundial",
+  imf: "FMI",
+  oecd: "OCDE",
+  vdem: "V-Dem",
+  wjp: "WJP",
+  transparency: "TI",
+};
+
+export function sourceShortName(id: string, fallback: string): string {
+  return SOURCE_SHORT_NAMES[id] ?? fallback;
+}
 
 export function fill(
   template: string,

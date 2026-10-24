@@ -4,7 +4,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { MonthPicker } from "@/components/ui/month-picker";
 import { EXPLORER_MIN_MONTH, EXPLORER_REFERENCE_MONTH } from "@/lib/dataset";
 import type { ExplorerModel } from "@/lib/explorer-model";
-import { strings } from "@/lib/strings";
+import { frequencyLabels, sourceShortName, strings } from "@/lib/strings";
 import type {
   ExplorerState,
   MovingAverage,
@@ -44,7 +44,7 @@ export function ChartControls({ state, model, update }: ChartControlsProps) {
         ? [
             {
               value: choice.id as SourceOption,
-              label: choice.source.name,
+              label: `${sourceShortName(choice.id, choice.source.name)} · ${frequencyLabels[choice.frequency]}`,
             },
           ]
         : [],

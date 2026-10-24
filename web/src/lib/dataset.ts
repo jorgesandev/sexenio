@@ -1,5 +1,5 @@
 import { dataset } from "@/data/generated/dataset";
-import type { Indicator, Observation, Source, Term } from "@/lib/types";
+import type { Frequency, Indicator, Observation, Source, Term } from "@/lib/types";
 
 export { dataset };
 
@@ -91,4 +91,13 @@ export function availableSourceIds(indicatorId: string): string[] {
 
 export function sourceHasData(indicatorId: string, sourceId: string): boolean {
   return getObservations(indicatorId, sourceId).length > 0;
+}
+
+export function getPrimaryFrequency(indicatorId: string): Frequency | undefined {
+  const indicator = getIndicator(indicatorId);
+  if (!indicator) return undefined;
+  return (
+    getObservations(indicatorId, indicator.sourceId)[0]?.frequency ??
+    indicator.frequency
+  );
 }
