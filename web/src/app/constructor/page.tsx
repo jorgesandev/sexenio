@@ -1,18 +1,15 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Constructor } from "@/components/constructor/constructor";
-import { ConstructorSkeleton } from "@/components/constructor/constructor-skeleton";
+import { pageMetadata } from "@/lib/metadata";
+import { ROUTES } from "@/lib/routes";
 import { strings } from "@/lib/strings";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: strings.nav.constructor,
   description: strings.builder.subtitle,
-};
+  path: ROUTES.constructor,
+});
 
 export default function ConstructorPage() {
-  return (
-    <Suspense fallback={<ConstructorSkeleton />}>
-      <Constructor />
-    </Suspense>
-  );
+  return <Constructor />;
 }

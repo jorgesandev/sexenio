@@ -6,7 +6,7 @@ Explorador interactivo de indicadores de México para comparar presidentes y sex
 
 ## Estado
 
-**M5 completado.** El explorador, el comparador y el constructor cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. El constructor permite elegir al menos tres indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar la sensibilidad del orden a ±10 puntos. El siguiente hito es **M6**: pulido y despliegue.
+**M6 completado.** El explorador, el comparador y el constructor cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. El constructor permite elegir al menos tres indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar la sensibilidad del orden a ±10 puntos. La v0 está desplegada con metadatos SEO/Open Graph, `robots.txt`, sitemap, contenido inicial renderizado y auditoría de accesibilidad.
 
 Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial para inversión/PIB, Gini, ingresos tributarios y gasto en salud, y el índice de remuneraciones medias reales de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI y en la metodología.
 
@@ -49,7 +49,7 @@ Por disponibilidad de APIs abiertas, M4 usa series anuales del Banco Mundial par
 │   ├── raw/               # descargas originales (no versionadas)
 │   └── processed/         # datasets normalizados (no versionados)
 ├── etl/                   # ingestión y generación de fixtures
-└── web/                   # aplicación Next.js (M5)
+└── web/                   # aplicación Next.js (M6)
 ```
 
 ## Inicio rápido
@@ -78,9 +78,8 @@ Copia `.env.example` a `.env.local` y completa los tokens cuando vayas a conecta
 
 ## Demo pública y despliegue
 
-Explorador y comparador M4: <https://sexenio-demo.jorgesandev.workers.dev/explorar/> y <https://sexenio-demo.jorgesandev.workers.dev/comparar/>.
-El constructor M5 está disponible en local y se publicará en el siguiente despliegue.
-Publica el dataset oficial generado; este despliegue no implica el cierre de M6.
+Explorador, comparador, constructor y metodología: <https://sexenio-demo.jorgesandev.workers.dev/explorar/>, <https://sexenio-demo.jorgesandev.workers.dev/comparar/>, <https://sexenio-demo.jorgesandev.workers.dev/constructor/> y <https://sexenio-demo.jorgesandev.workers.dev/metodologia/>.
+Publica el dataset oficial generado.
 
 El demo se publica mediante Cloudflare Workers Static Assets con `web/wrangler.jsonc`.
 Para reconstruir y desplegar con una sesión de Cloudflare autorizada:

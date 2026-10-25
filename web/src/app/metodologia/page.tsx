@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { CoverageMatrix } from "@/components/methodology/coverage-matrix";
+import { IndicatorCatalog } from "@/components/methodology/indicator-catalog";
 import { dataset } from "@/lib/dataset";
+import { pageMetadata } from "@/lib/metadata";
+import { ROUTES } from "@/lib/routes";
 import { accessLabels, strings } from "@/lib/strings";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: strings.nav.metodologia,
   description: strings.metodologia.subtitle,
-};
+  path: ROUTES.metodologia,
+});
 
 export default function MetodologiaPage() {
   const sourceIds = new Set(
@@ -31,6 +35,8 @@ export default function MetodologiaPage() {
       <div className="mt-6">
         <CoverageMatrix />
       </div>
+
+      <IndicatorCatalog />
 
       <section
         className="panel mt-4"

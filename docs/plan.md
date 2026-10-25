@@ -92,18 +92,20 @@ Depende de: M4.
 
 **Nota de producto:** `/constructor` abre con un ejemplo editable de tres indicadores y pesos iguales. No es un ranking oficial; el usuario elige indicadores, pesos y normalización. El sexenio en curso y los sexenios sin cobertura completa se excluyen con su motivo; nunca se rellenan con cero. El siguiente hito es M6.
 
-### M6 — Pulido y despliegue
+### M6 — Pulido y despliegue (hecho)
 
 Depende de: M5.
 
-- [ ] Accesibilidad AA y navegación por teclado.
-- [ ] Performance y lazy loading de ECharts.
-- [ ] Metadatos SEO y Open Graph.
-- [ ] Página de metodología generada desde metadatos.
-- [ ] Deploy en Cloudflare Pages.
-- [ ] Smoke tests.
+- [x] Accesibilidad AA y navegación por teclado.
+- [x] Performance y lazy loading de ECharts.
+- [x] Metadatos SEO y Open Graph.
+- [x] Página de metodología generada desde metadatos.
+- [x] Deploy en Cloudflare Workers Static Assets.
+- [x] Smoke tests.
 
 **Terminado cuando:** el sitio público cumple los criterios de aceptación de `docs/spec-v0.md`.
+
+**Nota de cierre:** auditoría Lighthouse en las cuatro rutas: Accesibilidad, SEO y Best Practices en 100; móvil con gzip/cache: constructor 92–97, explorar/comparar 95; LCP ~2.6–3.3 s en local y 2.8 s en producción, CLS 0, TBT < 200 ms. El HTML inicial ya contiene el contenido por defecto y la URL se hidrata después. Demo: <https://sexenio-demo.jorgesandev.workers.dev/>. Quedan revisiones manuales de lector de pantalla, zoom 200% y contenido editorial como mantenimiento posterior.
 
 ## Riesgos
 
@@ -114,10 +116,10 @@ Depende de: M5.
 | CONEVAL absorbido por INEGI | Serie de pobreza incierta | Verificar fuente vigente antes de M2 |
 | Discrepancia SESNSP/INEGI | Datos "contradictorios" | Mostrar ambas series, nunca elegir una |
 | Sexenio incompleto | Comparación injusta | Badge "en curso" y exclusión del ranking |
-| Scope creep | Retraso | 4 indicadores primero; el resto en M4 |
+| Scope creep | Retraso | 12 indicadores y constructor cerrados; M6 publicado |
 
 ## Orden recomendado para una sesión nueva
 
 1. Leer `AGENTS.md` y `docs/spec-v0.md`.
-2. Verificar M2, M3, M4 y M5 con `bun test`, `bun run lint` y `bun run build`.
-3. Avanzar a M6 (pulido y despliegue) solo después de revisar el constructor con datos oficiales.
+2. Verificar M2–M6 con `bun test`, `bun run lint`, `bun run build` y Lighthouse.
+3. Mantener datos, contenido y despliegue; los siguientes cambios son de mantenimiento, no de alcance v0.

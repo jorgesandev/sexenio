@@ -84,6 +84,15 @@ function TermChip({
   disabled: boolean;
   onToggle: () => void;
 }) {
+  const visibleName = termShortName(term);
+  const period = formatMonthRange(isoMonthOf(term.start), isoMonthOf(term.end));
+  const inProgress = term.inProgress
+    ? ` ${strings.explorer.inProgress.toLocaleUpperCase("es-MX")}`
+    : "";
+  const disabledHint = disabled
+    ? `. ${strings.comparator.keepOneTerm}`
+    : "";
+
   return (
     <button
       type="button"
@@ -94,14 +103,7 @@ function TermChip({
         fontWeight: active ? 600 : 500,
       }}
       aria-pressed={active}
-      aria-label={`${term.name} (${term.party}), ${formatMonthRange(
-        isoMonthOf(term.start),
-        isoMonthOf(term.end),
-      )}${disabled ? `. ${strings.comparator.keepOneTerm}` : ""}`}
-      title={`${term.name} · ${term.party} · ${formatMonthRange(
-        isoMonthOf(term.start),
-        isoMonthOf(term.end),
-      )}${disabled ? ` · ${strings.comparator.keepOneTerm}` : ""}`}
+      title={`${visibleName}${inProgress}. ${term.name} (${term.party}), ${period}${disabledHint}`}
       disabled={disabled}
       onClick={onToggle}
     >
@@ -110,7 +112,7 @@ function TermChip({
         style={{ backgroundColor: term.color }}
         aria-hidden="true"
       />
-      <span>{termShortName(term)}</span>
+      <span>{visibleName}</span>
       {term.inProgress ? (
         <span className="text-[9px] uppercase tracking-[0.08em] text-danger">
           {strings.explorer.inProgress}
@@ -305,7 +307,7 @@ function ComparisonSection({
                   />
                   {termShortName(term.term)}
                   {term.hasTrend ? (
-                    <span className="text-muted/80">· tendencia</span>
+                    <span className="text-muted">· tendencia</span>
                   ) : null}
                   {term.inProgress ? (
                     <span className="text-danger">· en curso</span>

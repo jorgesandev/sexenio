@@ -3,6 +3,7 @@
 import { Suspense, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { FixtureBanner } from "@/components/shell/fixture-banner";
+import { SearchParamsSync } from "@/components/shell/search-params-sync";
 import { Sidebar, SidebarFallback } from "@/components/shell/sidebar";
 import { SiteFooter } from "@/components/shell/site-footer";
 import { SiteHeader } from "@/components/shell/site-header";
@@ -24,6 +25,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <CsvExportProvider>
+      <Suspense fallback={null}>
+        <SearchParamsSync />
+      </Suspense>
       <SiteHeader />
       {showsData ? <FixtureBanner /> : null}
       <div className="mx-auto flex w-full max-w-[1440px] items-start">

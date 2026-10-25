@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCsvExport } from "@/components/explorer/csv-export-context";
 import { ROUTES, isRouteActive } from "@/lib/routes";
-import { strings } from "@/lib/strings";
+import { fill, strings } from "@/lib/strings";
 
 const NAV_ITEMS = [
   { href: ROUTES.explorar, label: strings.nav.explorar },
@@ -57,11 +57,11 @@ export function SiteHeader() {
           className="btn hidden shrink-0 md:inline-flex"
           disabled={!payload}
           onClick={download}
-          aria-label={
-            payload
+          aria-label={fill(strings.header.exportWithState, {
+            state: payload
               ? strings.header.exportReady
-              : strings.header.exportDisabled
-          }
+              : strings.header.exportDisabled,
+          })}
           title={
             payload ? strings.header.exportReady : strings.header.exportDisabled
           }

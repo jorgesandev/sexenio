@@ -97,9 +97,11 @@ export function ComparisonSummaryTable({
           className="btn w-full"
           disabled={!payload}
           onClick={download}
-          aria-label={
-            payload ? strings.header.exportReady : strings.header.exportDisabled
-          }
+          aria-label={fill(strings.header.exportWithState, {
+            state: payload
+              ? strings.header.exportReady
+              : strings.header.exportDisabled,
+          })}
         >
           {strings.header.export}
         </button>

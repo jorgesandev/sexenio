@@ -1,6 +1,6 @@
 # web
 
-Aplicación Next.js (App Router) del explorador, comparador y constructor de sexenios. Implementa **M5**: 12 indicadores, series disputadas en paralelo, eventos históricos, matriz de cobertura, comparador alineado con small multiples, exportación CSV y constructor de índice con z-score/min-max, exclusión por cobertura y sensibilidad ±10 puntos.
+Aplicación Next.js (App Router) del explorador, comparador y constructor de sexenios. Implementa **M6**: 12 indicadores, series disputadas en paralelo, eventos históricos, matriz de cobertura, comparador alineado con small multiples, exportación CSV, constructor de índice con z-score/min-max, exclusión por cobertura y sensibilidad ±10 puntos, y metodología generada desde metadatos. La v0 está desplegada en Cloudflare Workers Static Assets.
 
 ## Comandos
 
@@ -25,13 +25,16 @@ src/
 │   ├── explorer/            # controles, gráfica, tabla, cobertura, fuentes y eventos
 │   ├── comparator/          # controles, gráficas, resumen y datos alineados
 │   ├── constructor/         # selección, pesos, ranking, desglose y sensibilidad
-│   ├── methodology/         # matriz de cobertura
+│   ├── methodology/         # matriz de cobertura y fichas de indicadores
 │   └── ui/                  # controles segmentados, month picker, badges
 ├── data/generated/          # dataset tipado, generado; no editar
 └── lib/
     ├── url-state.ts         # parseo, validación y serialización de la URL
+    ├── use-explorer-state.ts # estado SSR por defecto + hidratación de URL
     ├── constructor.ts       # normalización, ranking, exclusiones y sensibilidad
     ├── constructor-context.ts # defaults del constructor
+    ├── metadata.ts          # metadatos SEO/Open Graph por página
+    ├── site.ts              # URL pública e imagen social
     ├── series.ts            # filtros, media móvil, vistas, huecos
     ├── coverage.ts          # cobertura anual y quiebres
     ├── chart-option.ts      # opciones ECharts del explorador
@@ -47,8 +50,8 @@ src/
 
 - `../etl/build_dataset.py` descarga y normaliza las fuentes oficiales; escribe `../data/processed/observations.json` (ignorado) y un manifiesto de cobertura.
 - `scripts/sync-data.mjs` prefiere `../data/processed/observations.json`, valida catálogo, unidades, fechas, estatus y cadencia, y genera `src/data/generated/dataset.ts`. Si no hay datos procesados, conserva el dataset generado versionado.
-- El dataset generado se versiona para que `web/` compile de forma aislada (Cloudflare Pages). `bun run sync:data --fixtures` fuerza el fallback sintético.
-- M5 cubre los 12 indicadores del catálogo. El explorador y el comparador se habilitan a partir de las observaciones disponibles; el constructor excluye los sexenios sin cobertura completa para los indicadores elegidos.
+- El dataset generado se versiona para que `web/` compile de forma aislada (Cloudflare Workers). `bun run sync:data --fixtures` fuerza el fallback sintético.
+- M6 cubre los 12 indicadores del catálogo. El explorador y el comparador se habilitan a partir de las observaciones disponibles; el constructor excluye los sexenios sin cobertura completa para los indicadores elegidos.
 - Homicidios tiene dos fuentes: INEGI anual y SESNSP mensual. La frecuencia se guarda por observación, no solo por indicador. La sección “Fuentes en paralelo” muestra ambas sin empalmarlas.
 - Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa el índice mensual de INEGI como proxy del salario formal. Las sustituciones están declaradas en la UI, `docs/fuentes.md` y `/metodologia`.
 - Los eventos históricos se dibujan como puntos y se listan con fecha, descripción y fuente.
@@ -64,9 +67,9 @@ En el comparador, el botón exporta el resumen por indicador y sexenio (promedio
 
 ## Estado en URL
 
-La URL es la única fuente de verdad de la vista. Defaults y validación viven en `lib/url-state.ts`; cualquier valor inválido cae al default y se reporta en la UI.
+La URL es la única fuente de verdad de la vista. Defaults y validación viven en `lib/url-state.ts`; cualquier valor inválido cae al default y se reporta en la UI. El HTML se prerenderiza con el estado por defecto y, al montar, se parsea la URL y se actualiza el estado sin volver a convertir la página en un skeleton.
 
-| Parámetro | M5 |
+| Parámetro | M6 |
 |---|---|
 | `i` | indicadores activos (lista separada por comas); el explorador usa el primero y el constructor parte de tres |
 | `t` | sexenios seleccionados; todos en el explorador, Fox y AMLO por defecto en el comparador |
@@ -84,7 +87,9 @@ Las comas y los dos puntos no se escapan en la query para mantener la URL legibl
 ## Notas de implementación
 
 - Sitio estático: `output: "export"` y `trailingSlash: true`. No hay backend ni rutas dinámicas.
-- ECharts se carga en un chunk diferido (`next/dynamic`, `ssr: false`); el primer render muestra un skeleton con la altura final.
+- El contenido por defecto se renderiza en el HTML estático; la URL se hidrata en el cliente mediante `useExplorerState` y `SearchParamsSync`. Las rutas de App Router mantienen el estado sincronizado con `popstate` y cambios de query.
+- `app/robots.ts` y `app/sitemap.ts` generan `robots.txt` y `sitemap.xml`; `app/layout.tsx` y `lib/metadata.ts` generan canonical, Open Graph y Twitter Cards. La imagen social vive en `public/og-image.png`.
+- ECharts se carga en un chunk diferido (`next/dynamic`, `ssr: false`); el contenedor de la gráfica muestra un skeleton con la altura final, sin bloquear el resto del contenido.
 - Las gráficas tienen resumen textual y tabla accesible. Los huecos se insertan como `null`; nunca se interpola en silencio.
 - El quiebre metodológico de pobreza (2022) se marca en la franja de cobertura y con una línea vertical en las gráficas; en el comparador la línea se corta y el promedio del sexenio afectado no se calcula.
 - El sexenio en curso se marca con badge, se dibuja sólido hasta el último dato y no se promedia; la prolongación punteada solo indica continuidad.
@@ -96,3 +101,4 @@ Las comas y los dos puntos no se escapan en la query para mantener la URL legibl
 - Las cifras preliminares/estimadas se señalan con badges y avisos; el detalle está en la tabla y el drawer.
 - `prefers-reduced-motion` desactiva transiciones; ECharts no anima.
 - El sitio no impone un ranking único; el constructor no sustituye el juicio del usuario ni oculta la fuente o el corte de datos.
+- Lighthouse final en las cuatro rutas: Accesibilidad, SEO y Best Practices en 100. Móvil con gzip/cache: constructor 92–97, explorar/comparar 95; LCP ~2.6–3.3 s local y 2.8 s en producción, CLS 0, TBT < 200 ms. Quedan revisiones manuales de lector de pantalla y zoom 200%.

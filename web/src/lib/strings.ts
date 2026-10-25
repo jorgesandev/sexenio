@@ -29,6 +29,7 @@ export const strings = {
     export: "Exportar CSV",
     exportReady: "Exportar la vista actual a CSV",
     exportDisabled: "No hay una vista con datos para exportar.",
+    exportWithState: "Exportar CSV: {state}",
     skip: "Saltar al contenido",
   },
   fixture: {
@@ -214,6 +215,10 @@ export const strings = {
     sourcesTitle: "Fuentes utilizadas",
     sourcesDescription:
       "Cada indicador conserva su fuente principal y, cuando existe, su fuente alternativa. Las licencias y notas son responsabilidad de la fuente original.",
+    indicatorCatalogTitle: "Indicadores y metadatos",
+    indicatorCatalogDescription:
+      "Ficha generada desde el catálogo de indicadores: unidad, frecuencia, dirección, cobertura, fuente y quiebres declarados.",
+    unit: "Unidad",
     license: "Licencia",
     notesTitle: "Notas de lectura",
     noteOfficial:

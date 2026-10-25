@@ -14,7 +14,7 @@ Lee antes de trabajar:
 
 ## Estado actual
 
-M5 completado: el explorador, el comparador y el constructor cubren los 12 indicadores, con fuente, estatus y `vintage` por observación. El constructor permite elegir al menos tres indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar la sensibilidad del orden a ±10 puntos. El siguiente hito es M6 (pulido y despliegue). Inversión/PIB, Gini, ingresos tributarios y gasto en salud usan series anuales del Banco Mundial; remuneraciones reales usa un índice de INEGI como proxy del salario formal.
+M6 completado: v0 desplegada en Cloudflare Workers Static Assets. El explorador, el comparador, el constructor y la metodología cubren los 12 indicadores; el constructor permite elegir indicadores, ajustar pesos, alternar normalización z-score/min-max, excluir sexenios sin cobertura y revisar sensibilidad a ±10 puntos. La página de metodología incluye matriz de cobertura, fichas generadas desde metadatos y fuentes. La carga inicial se renderiza en el HTML estático y la URL se hidrata en el cliente; incluye `robots.txt`, sitemap, Open Graph y una imagen social. El siguiente trabajo es mantenimiento de datos y revisión editorial, no otro hito de producto.
 
 El ETL escribe `data/processed/` (ignorado). La web empaqueta una copia tipada en `web/src/data/generated/dataset.ts`, que se versiona para builds aislados. Sin datos procesados, `sync:data` conserva el dataset generado; `--fixtures` fuerza el fallback sintético.
 

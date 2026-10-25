@@ -83,7 +83,7 @@ function IndicatorChip({
           : "border-rule bg-surface font-medium text-muted hover:border-ink hover:text-ink"
       }`}
       aria-pressed={active}
-      aria-label={`${indicator.name}. ${indicatorDirection(indicator.id)}.`}
+      aria-label={`${indicator.shortName}. ${indicator.name}. ${indicatorDirection(indicator.id)}.`}
       title={`${indicator.name} · ${indicator.unit} · ${frequencyLabels[indicator.frequency]}`}
       onClick={onToggle}
     >
@@ -343,6 +343,180 @@ export function Constructor() {
       ) : null}
 
       <div className="mt-6 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <aside className="order-1 min-w-0 space-y-4 lg:order-2 lg:sticky lg:top-20 lg:self-start">
+          <section className="panel" aria-labelledby="builder-indicators-title">
+            <div className="border-b border-rule px-4 py-3">
+              <h2
+                id="builder-indicators-title"
+                className="font-serif text-lg font-semibold"
+              >
+                {strings.builder.indicatorsLegend}
+              </h2>
+              <p className="mt-1 text-[11px] leading-5 text-muted">
+                {strings.builder.indicatorsHelp}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 text-muted tnum">
+                {fill(strings.builder.selectedCount, {
+                  selected: model.selectedIndicatorCount,
+                  total: dataset.indicators.length,
+                })}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 px-4 py-3">
+              {dataset.indicators.map((indicator) => (
+                <IndicatorChip
+                  key={indicator.id}
+                  indicatorId={indicator.id}
+                  active={selectedIds.has(indicator.id)}
+                  onToggle={() => toggleIndicator(indicator.id)}
+                />
+              ))}
+            </div>
+            {model.insufficientIndicators ? (
+              <p className="border-t border-rule px-4 py-2 text-[11px] leading-5 text-danger">
+                {fill(strings.builder.minIndicators, {
+                  count: MIN_INDICATORS,
+                })}
+              </p>
+            ) : null}
+          </section>
+
+          <section className="panel" aria-labelledby="builder-weights-title">
+            <div className="border-b border-rule px-4 py-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2
+                  id="builder-weights-title"
+                  className="font-serif text-lg font-semibold"
+                >
+                  {strings.builder.weightsLegend}
+                </h2>
+                <button
+                  type="button"
+                  className="text-[10px] font-medium text-accent underline decoration-rule underline-offset-4 hover:decoration-accent"
+                  onClick={() => update({ weights: {} })}
+                >
+                  {strings.builder.equalWeights}
+                </button>
+              </div>
+              <p className="mt-1 text-[11px] leading-5 text-muted">
+                {strings.builder.weightsHelp}
+              </p>
+            </div>
+
+            <div className="space-y-3 px-4 py-3">
+              {selected.map((indicator) => {
+                const raw = rawWeight(indicator.id);
+                const share = shareWeight(indicator.id);
+                const availability = model.availability.find(
+                  (item) => item.indicator.id === indicator.id,
+                );
+                return (
+                  <div key={indicator.id}>
+                    <div className="flex items-baseline justify-between gap-2">
+                      <label
+                        htmlFor={`weight-${indicator.id}`}
+                        className="text-[12px] font-medium text-ink"
+                      >
+                        {fill(strings.builder.weightLabel, {
+                          indicator: indicator.shortName,
+                        })}
+                      </label>
+                      <span className="text-[11px] font-medium text-muted tnum">
+                        {formatShare(share)}
+                      </span>
+                    </div>
+                    <input
+                      id={`weight-${indicator.id}`}
+                      type="range"
+                      min={0}
+                      max={100}
+                      step={1}
+                      value={Math.round(clamp(raw, 0, 100))}
+                      onChange={(event) =>
+                        setWeight(indicator.id, Number(event.target.value))
+                      }
+                      className="mt-1 h-6 w-full accent-ink"
+                    />
+                    <p className="text-[10px] leading-4 text-muted">
+                      {indicator.direction === "down"
+                        ? strings.builder.directionDown
+                        : strings.builder.directionUp}
+                      {availability
+                        ? ` · ${fill(strings.builder.termCount, {
+                            available: availability.availableTerms,
+                            total: availability.totalClosedTerms,
+                          })} · ${availability.source.name}`
+                        : ""}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {model.allZeroWeights ? (
+              <p className="border-t border-rule px-4 py-2 text-[11px] leading-5 text-danger">
+                {strings.builder.allZeroWeights}
+              </p>
+            ) : null}
+
+            <div className="border-t border-rule px-4 py-3">
+              <span className="field-label" aria-hidden="true">
+                {strings.builder.normalizationLegend}
+              </span>
+              <SegmentedControl
+                legend={strings.builder.normalizationLegend}
+                value={state.norm}
+                options={NORMALIZATION_OPTIONS}
+                onChange={(value) => update({ norm: value })}
+              />
+              <p className="mt-1 text-[10px] leading-4 text-muted">
+                {state.norm === "zscore"
+                  ? strings.builder.normalizationZHelp
+                  : strings.builder.normalizationMinmaxHelp}
+              </p>
+            </div>
+
+            <div className="border-t border-rule px-4 py-2">
+              <button type="button" className="btn w-full" onClick={reset}>
+                {strings.builder.reset}
+              </button>
+            </div>
+          </section>
+
+          <section className="panel px-4 py-3" aria-labelledby="builder-sources-title">
+            <h2
+              id="builder-sources-title"
+              className="font-serif text-lg font-semibold"
+            >
+              {strings.builder.sourceTitle}
+            </h2>
+            <p className="mt-0.5 text-[10px] leading-4 text-muted tnum">
+              {fill(strings.builder.vintage, {
+                vintage: dataset.provenance.vintage,
+              })}
+            </p>
+            <ul className="mt-2 space-y-2 text-[11px] leading-5 text-muted">
+              {sources.map((source) => (
+                <li key={source.id}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-ink underline decoration-rule underline-offset-4 hover:decoration-ink"
+                  >
+                    {source.name}
+                  </a>
+                  <span className="block text-[10px]">
+                    {source.notes}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[10px] leading-4 text-muted">
+              {strings.builder.sourceNote}
+            </p>
+          </section>
+        </aside>
         <div className="order-2 min-w-0 space-y-4 lg:order-1">
           {model.insufficientIndicators ? (
             <section className="panel px-4 py-8 lg:px-6">
@@ -611,180 +785,6 @@ export function Constructor() {
           ) : null}
         </div>
 
-        <aside className="order-1 min-w-0 space-y-4 lg:order-2 lg:sticky lg:top-20 lg:self-start">
-          <section className="panel" aria-labelledby="builder-indicators-title">
-            <div className="border-b border-rule px-4 py-3">
-              <h2
-                id="builder-indicators-title"
-                className="font-serif text-lg font-semibold"
-              >
-                {strings.builder.indicatorsLegend}
-              </h2>
-              <p className="mt-1 text-[11px] leading-5 text-muted">
-                {strings.builder.indicatorsHelp}
-              </p>
-              <p className="mt-1 text-[10px] leading-4 text-muted tnum">
-                {fill(strings.builder.selectedCount, {
-                  selected: model.selectedIndicatorCount,
-                  total: dataset.indicators.length,
-                })}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-1.5 px-4 py-3">
-              {dataset.indicators.map((indicator) => (
-                <IndicatorChip
-                  key={indicator.id}
-                  indicatorId={indicator.id}
-                  active={selectedIds.has(indicator.id)}
-                  onToggle={() => toggleIndicator(indicator.id)}
-                />
-              ))}
-            </div>
-            {model.insufficientIndicators ? (
-              <p className="border-t border-rule px-4 py-2 text-[11px] leading-5 text-danger">
-                {fill(strings.builder.minIndicators, {
-                  count: MIN_INDICATORS,
-                })}
-              </p>
-            ) : null}
-          </section>
-
-          <section className="panel" aria-labelledby="builder-weights-title">
-            <div className="border-b border-rule px-4 py-3">
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2
-                  id="builder-weights-title"
-                  className="font-serif text-lg font-semibold"
-                >
-                  {strings.builder.weightsLegend}
-                </h2>
-                <button
-                  type="button"
-                  className="text-[10px] font-medium text-accent underline decoration-rule underline-offset-4 hover:decoration-accent"
-                  onClick={() => update({ weights: {} })}
-                >
-                  {strings.builder.equalWeights}
-                </button>
-              </div>
-              <p className="mt-1 text-[11px] leading-5 text-muted">
-                {strings.builder.weightsHelp}
-              </p>
-            </div>
-
-            <div className="space-y-3 px-4 py-3">
-              {selected.map((indicator) => {
-                const raw = rawWeight(indicator.id);
-                const share = shareWeight(indicator.id);
-                const availability = model.availability.find(
-                  (item) => item.indicator.id === indicator.id,
-                );
-                return (
-                  <div key={indicator.id}>
-                    <div className="flex items-baseline justify-between gap-2">
-                      <label
-                        htmlFor={`weight-${indicator.id}`}
-                        className="text-[12px] font-medium text-ink"
-                      >
-                        {fill(strings.builder.weightLabel, {
-                          indicator: indicator.shortName,
-                        })}
-                      </label>
-                      <span className="text-[11px] font-medium text-muted tnum">
-                        {formatShare(share)}
-                      </span>
-                    </div>
-                    <input
-                      id={`weight-${indicator.id}`}
-                      type="range"
-                      min={0}
-                      max={100}
-                      step={1}
-                      value={Math.round(clamp(raw, 0, 100))}
-                      onChange={(event) =>
-                        setWeight(indicator.id, Number(event.target.value))
-                      }
-                      className="mt-1 h-6 w-full accent-ink"
-                    />
-                    <p className="text-[10px] leading-4 text-muted">
-                      {indicator.direction === "down"
-                        ? strings.builder.directionDown
-                        : strings.builder.directionUp}
-                      {availability
-                        ? ` · ${fill(strings.builder.termCount, {
-                            available: availability.availableTerms,
-                            total: availability.totalClosedTerms,
-                          })} · ${availability.source.name}`
-                        : ""}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-
-            {model.allZeroWeights ? (
-              <p className="border-t border-rule px-4 py-2 text-[11px] leading-5 text-danger">
-                {strings.builder.allZeroWeights}
-              </p>
-            ) : null}
-
-            <div className="border-t border-rule px-4 py-3">
-              <span className="field-label" aria-hidden="true">
-                {strings.builder.normalizationLegend}
-              </span>
-              <SegmentedControl
-                legend={strings.builder.normalizationLegend}
-                value={state.norm}
-                options={NORMALIZATION_OPTIONS}
-                onChange={(value) => update({ norm: value })}
-              />
-              <p className="mt-1 text-[10px] leading-4 text-muted">
-                {state.norm === "zscore"
-                  ? strings.builder.normalizationZHelp
-                  : strings.builder.normalizationMinmaxHelp}
-              </p>
-            </div>
-
-            <div className="border-t border-rule px-4 py-2">
-              <button type="button" className="btn w-full" onClick={reset}>
-                {strings.builder.reset}
-              </button>
-            </div>
-          </section>
-
-          <section className="panel px-4 py-3" aria-labelledby="builder-sources-title">
-            <h2
-              id="builder-sources-title"
-              className="font-serif text-lg font-semibold"
-            >
-              {strings.builder.sourceTitle}
-            </h2>
-            <p className="mt-0.5 text-[10px] leading-4 text-muted tnum">
-              {fill(strings.builder.vintage, {
-                vintage: dataset.provenance.vintage,
-              })}
-            </p>
-            <ul className="mt-2 space-y-2 text-[11px] leading-5 text-muted">
-              {sources.map((source) => (
-                <li key={source.id}>
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-medium text-ink underline decoration-rule underline-offset-4 hover:decoration-ink"
-                  >
-                    {source.name}
-                  </a>
-                  <span className="block text-[10px]">
-                    {source.notes}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-2 text-[10px] leading-4 text-muted">
-              {strings.builder.sourceNote}
-            </p>
-          </section>
-        </aside>
       </div>
     </div>
   );

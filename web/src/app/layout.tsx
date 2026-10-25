@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Source_Serif_4 } from "next/font/google";
 import { AppShell } from "@/components/shell/app-shell";
+import { OG_IMAGE, SITE_URL } from "@/lib/site";
 import { strings } from "@/lib/strings";
 import "./globals.css";
 
@@ -19,12 +20,34 @@ const sourceSerif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: strings.meta.title,
     template: "%s — Sexenio",
   },
   description: strings.meta.description,
   applicationName: strings.header.brand,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_MX",
+    siteName: strings.header.brand,
+    title: strings.meta.title,
+    description: strings.meta.description,
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: strings.meta.title,
+    description: strings.meta.description,
+    images: [OG_IMAGE.url],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
