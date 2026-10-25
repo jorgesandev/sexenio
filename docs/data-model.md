@@ -107,11 +107,11 @@ homicidio_100k,2024-01-01,26.1,por 100 mil habitantes,MX,revisado,2025-02-10,ine
 |---|---|---|---|---|---|
 | `pib_pc_real` | PIB per cápita real | trimestral | up | INEGI | 1993 |
 | `fbkf_pib` | Inversión fija bruta / PIB | anual | up | Banco Mundial | 1990 |
-| `inflacion` | Inflación anual | mensual | down | INEGI (INPC) | 2008 |
+| `inflacion` | Inflación anual | mensual | down | INEGI (INPC) | 1990 |
 | `salario_real_imss` | Remuneraciones medias reales | mensual | up | INEGI | 2008 |
 | `informalidad` | Tasa de informalidad laboral | mensual | down | INEGI (ENOE) | 2005 |
 | `pobreza_mult` | Pobreza multidimensional | bienal | down | CONEVAL/INEGI | 2008 |
-| `gini` | Coeficiente de Gini | anual | down | Banco Mundial | 1984 |
+| `gini` | Coeficiente de Gini | bienal | down | Banco Mundial | 1992 |
 | `homicidio_100k` | Homicidio doloso por 100 mil | anual / mensual | down | INEGI/SESNSP | 1990 |
 | `extorsion_100k` | Extorsión por 100 mil | mensual | down | SESNSP | 2015 |
 | `deuda_shrfsp_pib` | Deuda amplia / PIB | trimestral | down | SHCP | 2000 |

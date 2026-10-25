@@ -102,7 +102,7 @@ describe("dataset de la aplicación", () => {
       ["inflacion", "inegi", "monthly", "% anual"],
       ["salario_real_imss", "inegi", "monthly", "índice base 2018=100"],
       ["informalidad", "inegi", "monthly", "% de la población ocupada"],
-      ["gini", "wb", "annual", "índice 0-1"],
+      ["gini", "wb", "biennial", "índice 0-1"],
       ["extorsion_100k", "sesnsp", "monthly", "por 100 mil habitantes"],
       ["ingresos_trib_pib", "wb", "annual", "% del PIB"],
       ["gasto_salud_pc", "wb", "annual", "USD corrientes por habitante"],

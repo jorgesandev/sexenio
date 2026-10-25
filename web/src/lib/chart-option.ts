@@ -298,8 +298,8 @@ export function buildChartOption(input: ChartOptionInput): EChartsCoreOption {
       },
     }));
 
-  const lowFrequency = input.indicator.frequency === "biennial" ||
-    input.indicator.frequency === "annual" ||
+  const lowFrequency = input.frequency === "biennial" ||
+    input.frequency === "annual" ||
     input.points.length <= 16;
 
   const firstChartPoint = input.points.find(
@@ -325,12 +325,31 @@ export function buildChartOption(input: ChartOptionInput): EChartsCoreOption {
     );
     const pointBefore = [...input.points]
       .reverse()
-      .find((point) => point.value !== null);
-    const point = pointAfter ?? pointBefore;
-    if (!point || point.value === null) return [];
+      .find((point) => point.date <= event.date && point.value !== null);
+
+    const eventTimestamp = isoToTimestamp(event.date);
+    let yValue: number | null = null;
+
+    if (
+      pointBefore &&
+      pointBefore.value !== null &&
+      pointAfter &&
+      pointAfter.value !== null
+    ) {
+      const t0 = isoToTimestamp(pointBefore.date);
+      const t1 = isoToTimestamp(pointAfter.date);
+      const ratio = t1 === t0 ? 0 : (eventTimestamp - t0) / (t1 - t0);
+      yValue = pointBefore.value + (pointAfter.value - pointBefore.value) * ratio;
+    } else if (pointAfter && pointAfter.value !== null) {
+      yValue = pointAfter.value;
+    } else if (pointBefore && pointBefore.value !== null) {
+      yValue = pointBefore.value;
+    }
+
+    if (yValue === null) return [];
     return [
       {
-        value: [isoToTimestamp(event.date), point.value],
+        value: [eventTimestamp, yValue],
         event,
       },
     ];

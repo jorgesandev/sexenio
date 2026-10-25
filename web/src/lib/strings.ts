@@ -26,6 +26,9 @@ export const strings = {
   header: {
     brand: "Sexenio",
     tagline: "México en perspectiva",
+    share: "Copiar enlace",
+    shareCopied: "Enlace copiado",
+    shareTitle: "Copiar enlace permanente con la configuración actual",
     export: "Exportar CSV",
     exportReady: "Exportar la vista actual a CSV",
     exportDisabled: "No hay una vista con datos para exportar.",
@@ -218,6 +221,14 @@ export const strings = {
     indicatorCatalogTitle: "Indicadores y metadatos",
     indicatorCatalogDescription:
       "Ficha generada desde el catálogo de indicadores: unidad, frecuencia, dirección, cobertura, fuente y quiebres declarados.",
+    termsTitle: "Sexenios y cortes de periodo",
+    termsDescription:
+      "Cada mandato presidencial se delimita por sus fechas constitucionales de inicio y conclusión. El color asignado a cada gestión es constante en todas las vistas.",
+    termPeriod: "Periodo",
+    termParty: "Partido",
+    termStatus: "Estatus",
+    termInProgress: "En curso",
+    termClosed: "Cerrado",
     unit: "Unidad",
     license: "Licencia",
     notesTitle: "Notas de lectura",

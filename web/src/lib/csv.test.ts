@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { buildConstructorModel } from "./constructor";
+import { buildConstructorCsv } from "./constructor-csv";
 import { buildViewCsv } from "./csv";
 import type { Observation, Source, Indicator } from "./types";
 
@@ -84,5 +86,28 @@ describe("buildViewCsv", () => {
 
     expect(payload.filename).toContain("_sin-suavizado_");
     expect(payload.content).toContain(",level,10,10,");
+  });
+});
+
+describe("buildConstructorCsv", () => {
+  test("exporta el desglose del índice construido a CSV", () => {
+    const model = buildConstructorModel({
+      indicatorIds: ["pib_pc_real", "fbkf_pib", "homicidio_100k"],
+      termIds: ["zedillo", "fox", "calderon", "pena", "amlo", "sheinbaum"],
+      weights: {},
+      normalization: "zscore",
+    });
+
+    const payload = buildConstructorCsv({
+      model,
+      vintage: "2026-10-24",
+    });
+
+    expect(payload).not.toBeNull();
+    expect(payload?.filename).toBe("sexenio_constructor_zscore_2026-10-24.csv");
+    expect(payload?.content.startsWith("\uFEFF")).toBe(true);
+    expect(payload?.content).toContain(
+      "position,term_id,term,term_start,term_end,index_score,normalization,indicator_id",
+    );
   });
 });

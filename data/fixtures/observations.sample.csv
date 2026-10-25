@@ -329,25 +329,24 @@ gasto_salud_pc,2023-01-01,5620,USD corrientes por habitante,MX,fixture,2026-10-2
 gasto_salud_pc,2024-01-01,5835,USD corrientes por habitante,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
 gasto_salud_pc,2025-01-01,6031,USD corrientes por habitante,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
 gasto_salud_pc,2026-01-01,5914,USD corrientes por habitante,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2008-01-01,0.484,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2009-01-01,0.479,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2010-01-01,0.473,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2011-01-01,0.474,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2012-01-01,0.472,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2013-01-01,0.468,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2014-01-01,0.464,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2015-01-01,0.465,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2016-01-01,0.467,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2017-01-01,0.463,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2018-01-01,0.460,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2019-01-01,0.462,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2020-01-01,0.455,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2021-01-01,0.457,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2022-01-01,0.450,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2023-01-01,0.449,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2024-01-01,0.444,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2025-01-01,0.447,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
-gini,2026-01-01,0.447,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,1992-01-01,0.482,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,1994-01-01,0.474,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,1996-01-01,0.469,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,1998-01-01,0.470,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2000-01-01,0.462,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2002-01-01,0.464,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2004-01-01,0.455,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2006-01-01,0.454,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2008-01-01,0.452,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2010-01-01,0.441,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2012-01-01,0.440,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2014-01-01,0.432,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2016-01-01,0.435,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2018-01-01,0.428,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2020-01-01,0.423,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2022-01-01,0.418,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2024-01-01,0.412,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
+gini,2026-01-01,0.415,índice 0-1,MX,fixture,2026-10-24,wb,https://data.worldbank.org/,DATO SINTÉTICO — solo desarrollo
 homicidio_100k,1995-01-01,16.4,por 100 mil habitantes,MX,fixture,2026-10-24,inegi,https://www.inegi.org.mx/,DATO SINTÉTICO — solo desarrollo
 homicidio_100k,1996-01-01,22.8,por 100 mil habitantes,MX,fixture,2026-10-24,inegi,https://www.inegi.org.mx/,DATO SINTÉTICO — solo desarrollo
 homicidio_100k,1997-01-01,17.3,por 100 mil habitantes,MX,fixture,2026-10-24,inegi,https://www.inegi.org.mx/,DATO SINTÉTICO — solo desarrollo

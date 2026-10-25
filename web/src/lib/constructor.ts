@@ -3,11 +3,13 @@ import {
   MIN_COMPARABLE_COVERAGE,
   type IndicatorComparison,
 } from "@/lib/comparator";
+import { isoMonthOf } from "@/lib/dates";
 import { dataset } from "@/lib/dataset";
 import type { Indicator, Source, Term } from "@/lib/types";
 import type { NormalizationMode } from "@/lib/url-state";
 
 export const MIN_INDICATORS = 3;
+export const MIN_RANKED_TERMS = 2;
 export const SENSITIVITY_DELTA = 10;
 
 export type ExclusionReason =
@@ -147,11 +149,14 @@ function exclusionForTerm(
       coverage: data.coverage,
     };
   }
-  if (data.coverage === null) {
+  if (
+    data.coverage === null ||
+    (comparison && isoMonthOf(term.end) < comparison.indicator.coverageStart)
+  ) {
     return {
       indicatorId: comparison?.indicator.id ?? "",
       reason: "outside-coverage",
-      coverage: null,
+      coverage: data.coverage,
     };
   }
   if (data.coverage < MIN_COMPARABLE_COVERAGE) {
@@ -334,13 +339,15 @@ export function buildConstructorModel({
     }),
   );
 
+  const rankableTerms =
+    eligibleTerms.length >= MIN_RANKED_TERMS ? eligibleTerms : [];
   const normalizedByTerm = new Map<string, NormalizedValue[]>();
-  for (const term of eligibleTerms) {
+  for (const term of rankableTerms) {
     normalizedByTerm.set(term.id, []);
   }
 
   comparisons.forEach((comparison, indicatorIndex) => {
-    const rawValues = eligibleTerms.map((term) => {
+    const rawValues = rankableTerms.map((term) => {
       const data = comparison.terms.find((item) => item.term.id === term.id);
       if (!data || data.average === null) {
         throw new Error("El modelo de comparación devolvió un término inelegible.");
@@ -356,7 +363,7 @@ export function buildConstructorModel({
       ),
     );
 
-    eligibleTerms.forEach((term, termIndex) => {
+    rankableTerms.forEach((term, termIndex) => {
       const values = normalizedByTerm.get(term.id);
       if (!values) return;
       values.push({
@@ -370,7 +377,7 @@ export function buildConstructorModel({
     });
   });
 
-  const eligibleIds = eligibleTerms.map((term) => term.id);
+  const eligibleIds = rankableTerms.map((term) => term.id);
   const scores = computeScores(eligibleIds, normalizedByTerm, shares);
   const orderedIds = sortByScore(eligibleIds, scores, termsById);
   const scoreValues = [...scores.values()];

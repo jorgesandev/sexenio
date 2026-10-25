@@ -43,10 +43,10 @@
 | Indicador | Fuente efectiva | Motivo |
 |---|---|---|
 | Inversión fija / PIB | Banco Mundial, `NE.GDI.FTOT.ZS` | La serie trimestral de INEGI no está disponible en la API vigente. |
-| Inflación anual | INEGI, serie mensual 910406 | Serie vigente del INPC; las claves BISE anteriores están congeladas. |
-| Remuneraciones reales | INEGI, serie mensual 702102 | Proxy de ingreso formal; no es el salario base de cotización del IMSS. |
-| Informalidad | INEGI ENOE, serie mensual 444619 | Tasa TIL1 mensual. |
-| Gini | Banco Mundial, `SI.POV.GINI` | Serie anual armonizada; se transforma a 0–1. |
+| Inflación anual | INEGI, serie mensual 910406 | Serie vigente del INPC desde 1990; las claves BISE anteriores están congeladas. |
+| Remuneraciones reales | INEGI, serie mensual 702134 | Serie desestacionalizada del índice global de remuneraciones medias reales; proxy de ingreso formal. |
+| Informalidad | INEGI ENOE, serie mensual 444610 | Tasa TIL1 nacional mensual. |
+| Gini | Banco Mundial, `SI.POV.GINI` | Serie bienal de la ENIGH (años pares desde 1992); se transforma a 0–1. |
 | Extorsión | SESNSP | Denuncias mensuales por 100 mil habitantes. |
 | Ingresos tributarios / PIB | Banco Mundial, `GC.TAX.TOTL.GD.ZS` | Serie anual comparable. |
 | Gasto en salud per cápita | Banco Mundial, `SH.XPD.CHEX.PC.CD` | USD corrientes; no está deflactado a pesos. |

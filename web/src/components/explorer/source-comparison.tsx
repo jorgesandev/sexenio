@@ -85,7 +85,8 @@ export function SourceComparison({
                 <p className="mt-3 text-[22px] font-semibold leading-7 text-ink tnum">
                   {formatNumber(latest.value)}
                   <span className="ml-1 text-[10px] font-normal text-muted">
-                    {indicator.unit} · {formatPeriodShort(latest.date)}
+                    {indicator.unit} ({frequencyLabels[choice.frequency]}) ·{" "}
+                    {formatPeriodShort(latest.date)}
                   </span>
                 </p>
               ) : (

@@ -209,4 +209,19 @@ describe("buildConstructorModel", () => {
     ]);
     expect(result.excluded).toEqual([]);
   });
+
+  test("marca como fuera de cobertura un sexenio previo al inicio de la serie", () => {
+    const result = model([...DEFAULT_INDICATORS, "informalidad"]);
+    const zedillo = result.excluded.find((item) => item.term.id === "zedillo");
+
+    expect(zedillo).toBeDefined();
+    expect(zedillo?.reasons).toContain("outside-coverage");
+  });
+
+  test("no emite ranking cuando queda menos de dos sexenios elegibles", () => {
+    const result = model([...DEFAULT_INDICATORS, "extorsion_100k"]);
+
+    expect(result.ranked).toEqual([]);
+    expect(result.sensitivity.cases).toEqual([]);
+  });
 });

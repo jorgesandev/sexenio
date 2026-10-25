@@ -38,7 +38,7 @@
       "frequency": "monthly",
       "direction": "down",
       "sourceId": "inegi",
-      "coverageStart": "2008-01",
+      "coverageStart": "1990-01",
       "description": "Variación anual del Índice Nacional de Precios al Consumidor.",
       "methodologyNote": "Variación anual del INPC, base 2018=100, serie mensual vigente de INEGI (910406). Meta de Banxico: 3% ± 1 punto porcentual.",
       "breaks": []
@@ -54,7 +54,7 @@
       "sourceId": "inegi",
       "coverageStart": "2008-01",
       "description": "Índice de remuneraciones medias reales por persona ocupada en los sectores económicos.",
-      "methodologyNote": "INEGI, índice global de remuneraciones medias reales (base 2018=100). No es el salario base de cotización del IMSS; se usa como proxy de ingreso laboral formal.",
+      "methodologyNote": "INEGI, índice global de remuneraciones medias reales, serie desestacionalizada (702134, base 2018=100). No es el salario base de cotización del IMSS; se usa como proxy de ingreso laboral formal.",
       "breaks": []
     },
     {
@@ -68,7 +68,7 @@
       "sourceId": "inegi",
       "coverageStart": "2005-01",
       "description": "Proporción de la población ocupada en empleos informales.",
-      "methodologyNote": "Tasa de informalidad laboral TIL1 de la ENOE, serie mensual 444619. Comparable solo desde 2005; no confundir con desempleo abierto.",
+      "methodologyNote": "Tasa de informalidad laboral TIL1 nacional de la ENOE, serie mensual 444610. Comparable solo desde 2005; no confundir con desempleo abierto.",
       "breaks": []
     },
     {
@@ -96,12 +96,12 @@
       "shortName": "Gini",
       "dimension": "social",
       "unit": "índice 0-1",
-      "frequency": "annual",
+      "frequency": "biennial",
       "direction": "down",
       "sourceId": "wb",
-      "coverageStart": "1984-01",
+      "coverageStart": "1992-01",
       "description": "Desigualdad en la distribución del ingreso; 0 es igualdad total y 1 es desigualdad máxima.",
-      "methodologyNote": "Coeficiente de Gini del Banco Mundial (SI.POV.GINI), basado en encuestas de hogares. Se transforma de 0-100 a 0-1.",
+      "methodologyNote": "Coeficiente de Gini del Banco Mundial (SI.POV.GINI), basado en la ENIGH bienal (años pares desde 1992). Se transforma de 0-100 a 0-1.",
       "breaks": []
     },
     {

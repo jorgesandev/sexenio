@@ -87,6 +87,7 @@ export function useExplorerState(
         query ? `?${query}` : ""
       }${window.location.hash}`;
       window.history.replaceState(window.history.state, "", target);
+      window.dispatchEvent(new Event(URL_CHANGE_EVENT));
     },
     [context],
   );

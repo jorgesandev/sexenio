@@ -6,11 +6,11 @@ Criterios: cobertura larga, fuente verificable, frecuencia al menos anual y rele
 |---|---|---|---|---|---|---|
 | 1 | PIB per cápita real | pesos constantes | trimestral | INEGI | 1993– | ↑ mejor |
 | 2 | Inversión fija bruta / PIB | % del PIB | anual | Banco Mundial (WDI) | 1990– | ↑ mejor |
-| 3 | Inflación anual | % anual | mensual | INEGI (INPC) | 2008– | ↓ mejor (meta 3%) |
+| 3 | Inflación anual | % anual | mensual | INEGI (INPC) | 1990– | ↓ mejor (meta 3%) |
 | 4 | Remuneraciones medias reales | índice 2018=100 | mensual | INEGI | 2008– | ↑ mejor |
 | 5 | Tasa de informalidad laboral | % de ocupados | mensual | INEGI (ENOE) | 2005– | ↓ mejor |
 | 6 | Pobreza multidimensional | % de población | bienal | CONEVAL / INEGI | 2008– | ↓ mejor |
-| 7 | Coeficiente de Gini | índice 0–1 | anual | Banco Mundial (WDI) | 1984– | ↓ mejor |
+| 7 | Coeficiente de Gini | índice 0–1 | bienal | Banco Mundial (WDI) | 1992– | ↓ mejor |
 | 8 | Homicidio doloso | por 100 mil hab. | anual / mensual | INEGI y SESNSP | 1990– | ↓ mejor |
 | 9 | Extorsión | por 100 mil hab. | mensual | SESNSP | 2015– | ↓ mejor |
 | 10 | Deuda amplia (SHRFSP) / PIB | % | trimestral | SHCP | 2000– | ↓ mejor |

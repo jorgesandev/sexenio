@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CoverageMatrix } from "@/components/methodology/coverage-matrix";
 import { IndicatorCatalog } from "@/components/methodology/indicator-catalog";
 import { dataset } from "@/lib/dataset";
+import { formatFullDate } from "@/lib/format";
 import { pageMetadata } from "@/lib/metadata";
 import { ROUTES } from "@/lib/routes";
 import { accessLabels, strings } from "@/lib/strings";
@@ -13,13 +14,14 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function MetodologiaPage() {
-  const sourceIds = new Set(
-    dataset.indicators.flatMap((indicator) =>
+  const sourceIds = new Set([
+    ...dataset.indicators.flatMap((indicator) =>
       [indicator.sourceId, indicator.alternateSourceId].filter(
         (id): id is string => Boolean(id),
       ),
     ),
-  );
+    "conapo",
+  ]);
   const sources = dataset.sources.filter((source) => sourceIds.has(source.id));
 
   return (
@@ -37,6 +39,60 @@ export default function MetodologiaPage() {
       </div>
 
       <IndicatorCatalog />
+
+      <section
+        className="panel mt-4"
+        aria-labelledby="methodology-terms-title"
+      >
+        <div className="border-b border-rule px-4 py-3 lg:px-6">
+          <h2
+            id="methodology-terms-title"
+            className="font-serif text-lg font-semibold"
+          >
+            {strings.metodologia.termsTitle}
+          </h2>
+          <p className="mt-1 text-[11px] leading-5 text-muted">
+            {strings.metodologia.termsDescription}
+          </p>
+        </div>
+        <ul className="divide-y divide-rule">
+          {dataset.terms.map((term) => (
+            <li key={term.id} className="px-4 py-3 lg:px-6">
+              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="term-dot"
+                    style={{ backgroundColor: term.color }}
+                    aria-hidden="true"
+                  />
+                  <h3 className="text-[13px] font-semibold text-ink">
+                    {term.name}
+                  </h3>
+                  <span className="text-[11px] text-muted">({term.party})</span>
+                </div>
+                <span
+                  className={
+                    term.inProgress ? "badge badge-danger" : "badge"
+                  }
+                >
+                  {term.inProgress
+                    ? strings.metodologia.termInProgress
+                    : strings.metodologia.termClosed}
+                </span>
+              </div>
+              <p className="mt-1 text-[11px] leading-4 text-muted tnum">
+                {strings.metodologia.termPeriod}: {formatFullDate(term.start)} –{" "}
+                {formatFullDate(term.end)}
+              </p>
+              {term.note ? (
+                <p className="mt-1 max-w-[80ch] text-[11px] leading-4 text-muted">
+                  {term.note}
+                </p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section
         className="panel mt-4"

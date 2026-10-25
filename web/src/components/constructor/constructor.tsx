@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRegisterCsvExport } from "@/components/explorer/csv-export-context";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { CONSTRUCTOR_CONTEXT } from "@/lib/constructor-context";
+import { buildConstructorCsv } from "@/lib/constructor-csv";
 import {
   buildConstructorModel,
   MIN_INDICATORS,
@@ -230,6 +232,16 @@ export function Constructor() {
       }),
     [state.indicatorIds, state.norm, state.termIds, state.weights],
   );
+
+  const csvExport = useMemo(
+    () =>
+      buildConstructorCsv({
+        model,
+        vintage: dataset.provenance.vintage,
+      }),
+    [model],
+  );
+  useRegisterCsvExport(csvExport);
 
   const selected = model.selectedIndicators;
   const selectedIds = new Set(selected.map((indicator) => indicator.id));

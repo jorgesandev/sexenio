@@ -820,8 +820,8 @@ def debt_shrfsp_pib(nominal_gdp: dict[tuple[int, int], float]) -> list[dict[str,
 def inflation() -> list[dict[str, Any]]:
     raw = inegi_app_series(
         "910406",
-        "inegi_inflacion_910406.json",
-        start_year=2008,
+        "inegi_inflacion_910406_1990.json",
+        start_year=1990,
     )
     result = []
     for item in raw:
@@ -844,8 +844,8 @@ def inflation() -> list[dict[str, Any]]:
 
 def informality() -> list[dict[str, Any]]:
     raw = inegi_app_series(
-        "444619",
-        "inegi_informalidad_444619.json",
+        "444610",
+        "inegi_informalidad_444610.json",
         start_year=2005,
     )
     result = []
@@ -859,7 +859,7 @@ def informality() -> list[dict[str, Any]]:
                 "% de la población ocupada",
                 "inegi",
                 "https://www.inegi.org.mx/programas/enoe/15ymas/",
-                "Tasa de informalidad laboral TIL1 de la ENOE. Serie mensual; comparable desde 2005.",
+                "Tasa de informalidad laboral TIL1 nacional de la ENOE (serie 444610). Serie mensual; comparable desde 2005.",
                 "monthly",
                 "revisado",
             )
@@ -869,8 +869,8 @@ def informality() -> list[dict[str, Any]]:
 
 def real_remuneration() -> list[dict[str, Any]]:
     raw = inegi_app_series(
-        "702102",
-        "inegi_remuneraciones_702102.json",
+        "702134",
+        "inegi_remuneraciones_702134.json",
         start_year=2008,
     )
     result = []
@@ -886,8 +886,9 @@ def real_remuneration() -> list[dict[str, Any]]:
                 "https://www.inegi.org.mx/temas/remuneraciones/",
                 (
                     "Índice global de remuneraciones medias reales por persona "
-                    "ocupada. Es un proxy de ingreso laboral formal; no es el "
-                    "salario base de cotización del IMSS."
+                    "ocupada (serie desestacionalizada 702134, base 2018=100). "
+                    "Es un proxy de ingreso laboral formal; no es el salario "
+                    "base de cotización del IMSS."
                 ),
                 "monthly",
                 "revisado",
@@ -902,7 +903,9 @@ def world_bank_indicators() -> list[dict[str, Any]]:
             "indicator_id": "fbkf_pib",
             "code": "NE.GDI.FTOT.ZS",
             "unit": "% del PIB",
+            "frequency": "annual",
             "start_year": 1990,
+            "filter_year": None,
             "transform": lambda value: value,
             "note": (
                 "Formación bruta de capital fijo como porcentaje del PIB. "
@@ -914,18 +917,23 @@ def world_bank_indicators() -> list[dict[str, Any]]:
             "indicator_id": "gini",
             "code": "SI.POV.GINI",
             "unit": "índice 0-1",
-            "start_year": 1984,
+            "frequency": "biennial",
+            "start_year": 1992,
+            "filter_year": lambda year: year % 2 == 0,
             "transform": lambda value: value / 100,
             "note": (
                 "Coeficiente de Gini del Banco Mundial, calculado a partir de "
-                "encuestas de hogares. Se transforma de 0-100 a 0-1."
+                "la ENIGH bienal (años pares desde 1992). Se transforma de "
+                "0-100 a 0-1."
             ),
         },
         {
             "indicator_id": "ingresos_trib_pib",
             "code": "GC.TAX.TOTL.GD.ZS",
             "unit": "% del PIB",
+            "frequency": "annual",
             "start_year": 1990,
+            "filter_year": None,
             "transform": lambda value: value,
             "note": (
                 "Ingresos tributarios como porcentaje del PIB. Serie anual "
@@ -936,7 +944,9 @@ def world_bank_indicators() -> list[dict[str, Any]]:
             "indicator_id": "gasto_salud_pc",
             "code": "SH.XPD.CHEX.PC.CD",
             "unit": "USD corrientes por habitante",
+            "frequency": "annual",
             "start_year": 2000,
+            "filter_year": None,
             "transform": lambda value: value,
             "note": (
                 "Gasto corriente en salud per cápita del Banco Mundial, en "
@@ -952,7 +962,10 @@ def world_bank_indicators() -> list[dict[str, Any]]:
             f"world_bank_{definition['code'].lower().replace('.', '_')}.zip",
             start_year=definition["start_year"],
         )
+        filter_year = definition["filter_year"]
         for row in rows:
+            if filter_year and not filter_year(row["year"]):
+                continue
             result.append(
                 observation(
                     definition["indicator_id"],
@@ -962,7 +975,7 @@ def world_bank_indicators() -> list[dict[str, Any]]:
                     "wb",
                     f"https://data.worldbank.org/indicator/{definition['code']}?locations=MX",
                     definition["note"],
-                    "annual",
+                    definition["frequency"],
                     "revisado",
                 )
             )

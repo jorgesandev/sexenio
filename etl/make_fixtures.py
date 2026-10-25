@@ -32,7 +32,7 @@ PARAMS: dict[str, dict] = {
     "salario_real_imss": {"start": "1997-01-01", "base": 350, "trend": 6, "amp": 10, "decimals": 1, "clamp": (250, 900), "period": 54},
     "informalidad": {"start": "2005-01-01", "base": 58.0, "trend": -0.25, "amp": 1.5, "decimals": 1, "clamp": (40, 65), "period": 40},
     "pobreza_mult": {"start": "2008-01-01", "base": 44.0, "trend": -0.6, "amp": 2.5, "decimals": 1, "clamp": (20, 55), "period": 24},
-    "gini": {"start": "2008-01-01", "base": 0.48, "trend": -0.002, "amp": 0.012, "decimals": 3, "clamp": (0.38, 0.55), "period": 24},
+    "gini": {"start": "1992-01-01", "base": 0.48, "trend": -0.002, "amp": 0.012, "decimals": 3, "clamp": (0.38, 0.55), "period": 24},
     "homicidio_100k": {"start": "1995-01-01", "base": 17.0, "trend": 0.7, "amp": 5.0, "decimals": 1, "clamp": (5, 35), "period": 42},
     "extorsion_100k": {"start": "2015-01-01", "base": 4.5, "trend": 0.15, "amp": 1.2, "decimals": 1, "clamp": (1, 12), "period": 30},
     "deuda_shrfsp_pib": {"start": "1994-12-01", "base": 38.0, "trend": 0.6, "amp": 2.5, "decimals": 1, "clamp": (20, 62), "period": 56},
